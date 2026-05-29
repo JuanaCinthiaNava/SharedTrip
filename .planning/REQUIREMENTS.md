@@ -9,13 +9,13 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 
 ### Infrastructure & Setup
 
-- [ ] **INFRA-01**: Proyecto Supabase creado con DB Postgres, Auth, Storage y Realtime habilitados
+- [x] **INFRA-01**: Proyecto Supabase creado con DB Postgres, Auth, Storage y Realtime habilitados
 - [ ] **INFRA-02**: Esquema inicial con tablas `trips`, `trip_members`, `documents`, `itinerary_items`, `expenses` (esta última vacía, lista para v1.5)
 - [ ] **INFRA-03**: Row-Level Security (RLS) habilitada en todas las tablas, con función `is_trip_member(trip_id)` `SECURITY DEFINER`
 - [ ] **INFRA-04**: Bucket de Storage `trip-documents` privado, con políticas que solo permiten acceso a miembros del trip
 - [ ] **INFRA-05**: Keep-alive cron (GitHub Actions) hace ping a Supabase cada 5 minutos para evitar pausa por inactividad
-- [ ] **INFRA-06**: Deploy a Vercel con dominio funcional y variables de entorno seguras
-- [ ] **INFRA-07**: Diccionario `es.ts` para todas las strings de UI (no hardcoded JSX) — i18n-ready aunque solo se exponga español
+- [x] **INFRA-06**: Deploy a Vercel con dominio funcional y variables de entorno seguras
+- [x] **INFRA-07**: Diccionario `es.ts` para todas las strings de UI (no hardcoded JSX) — i18n-ready aunque solo se exponga español
 
 ### Authentication
 
@@ -70,9 +70,9 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 
 ### UI & Localization
 
-- [ ] **UI-01**: Toda la interfaz en español neutro/LATAM, sin strings en inglés visibles
-- [ ] **UI-02**: Estilo visual juvenil y vibrante — paleta de colores saturada, ilustraciones/iconos cálidos, tipografía moderna (referencia: Spotify, Duolingo)
-- [ ] **UI-03**: Responsive móvil-first, funcional desde 320px hasta desktop
+- [x] **UI-01**: Toda la interfaz en español neutro/LATAM, sin strings en inglés visibles
+- [x] **UI-02**: Estilo visual juvenil y vibrante — paleta de colores saturada, ilustraciones/iconos cálidos, tipografía moderna (referencia: Spotify, Duolingo)
+- [x] **UI-03**: Responsive móvil-first, funcional desde 320px hasta desktop
 - [ ] **UI-04**: Estados de carga claros (skeletons), errores con mensaje accionable, vacíos con guía hacia siguiente acción
 - [ ] **UI-05**: Fechas formateadas con `Intl.DateTimeFormat('es-MX')` consistentemente
 
@@ -128,22 +128,22 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1: Foundation + Auth | Pending |
+| INFRA-01 | Phase 1: Foundation + Auth | Complete |
 | INFRA-02 | Phase 1: Foundation + Auth | Pending |
 | INFRA-03 | Phase 1: Foundation + Auth | Pending |
 | INFRA-04 | Phase 1: Foundation + Auth | Pending |
 | INFRA-05 | Phase 1: Foundation + Auth | Pending |
-| INFRA-06 | Phase 1: Foundation + Auth | Pending |
-| INFRA-07 | Phase 1: Foundation + Auth | Pending |
+| INFRA-06 | Phase 1: Foundation + Auth | Complete |
+| INFRA-07 | Phase 1: Foundation + Auth | Complete |
 | AUTH-01 | Phase 1: Foundation + Auth | Pending |
 | AUTH-02 | Phase 1: Foundation + Auth | Pending |
 | AUTH-03 | Phase 1: Foundation + Auth | Pending |
 | AUTH-04 | Phase 1: Foundation + Auth | Pending |
 | AUTH-05 | Phase 1: Foundation + Auth | Pending |
 | AUTH-06 | Phase 1: Foundation + Auth | Pending |
-| UI-01 | Phase 1: Foundation + Auth | Pending |
-| UI-02 | Phase 1: Foundation + Auth | Pending |
-| UI-03 | Phase 1: Foundation + Auth | Pending |
+| UI-01 | Phase 1: Foundation + Auth | Complete |
+| UI-02 | Phase 1: Foundation + Auth | Complete |
+| UI-03 | Phase 1: Foundation + Auth | Complete |
 | TRIP-01 | Phase 2: Trip + Member Management | Pending |
 | TRIP-02 | Phase 2: Trip + Member Management | Pending |
 | TRIP-03 | Phase 2: Trip + Member Management | Pending |
