@@ -1243,22 +1243,16 @@ export function useIsIOSNotInstalled() {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED 2026-05-29)
 
-1. **Email subject customization method**
-   - What we know: Supabase built-in email template has limited variable support; D-03 requires a timestamped subject
-   - What's unclear: Whether `{{ .Token }}` in the subject field of the Supabase dashboard template is sufficient, or whether the `admin.generateLink()` + Resend SDK approach is needed
-   - Recommendation: Start with `{{ .Token }}` in the subject — it makes each subject unique even if not human-readable as a time. If the user finds it confusing during Phase 5 testing, switch to the Resend SDK approach.
+1. **Email subject customization method** — **RESOLVED**
+   - **Decision:** Hybrid approach. Subject uses Supabase native `{{ .Token }}` (uniqueness, anti-Gmail-threading). Email **body** renders `Solicitado a las HH:mm` server-side via `Intl.DateTimeFormat('es-MX')` so the user still has a freshness signal. D-03 in CONTEXT.md updated to reflect this trade-off. `admin.generateLink()` + Resend SDK route handler is out of scope for Phase 1.
 
-2. **New Supabase API key format**
-   - What we know: Projects after June 2025 use `sb_publishable_...` keys; the old `NEXT_PUBLIC_SUPABASE_ANON_KEY` still works until late 2026
-   - What's unclear: Whether the newly created Supabase project for SharedTrip has the new keys or still shows legacy key names in the dashboard
-   - Recommendation: Check the Supabase dashboard → Project Settings → API immediately after project creation. Use whichever key format the dashboard shows.
+2. **New Supabase API key format** — **RESOLVED (accepted risk)**
+   - **Decision:** Check the Supabase dashboard at project creation time. Plans use the configurable env var name; whichever key format the dashboard shows is what goes into `.env.local`. No code change needed regardless of legacy vs. new key naming.
 
-3. **Anonymous session persistence on iOS Safari (non-installed)**
-   - What we know: `@supabase/ssr` stores sessions in cookies (not localStorage), which should survive ITP; there's an intermittent iOS bug with `getUser()` returning null on first load
-   - What's unclear: Whether cookie-based anonymous sessions survive the 7-day ITP cycle for non-Home-Screen-installed users
-   - Recommendation: For Phase 1, this is a known-acceptable risk. Document it. Phase 5 must validate on a real iPhone. For Phase 1 testing, verify the anonymous session survives a browser restart on an actual iPhone.
+3. **Anonymous session persistence on iOS Safari (non-installed)** — **RESOLVED (deferred to Phase 5)**
+   - **Decision:** Accepted Phase 1 risk. Documented in `01-SKELETON.md` "Out of Scope" + Plan 01-05 known-bug note. Phase 5 (iOS hardening) will validate on a real iPhone, add the `getUser()` null retry, and ship the OTP fallback for Gmail in-app browser. Phase 1 ships with @supabase/ssr cookies and the standard PKCE flow.
 
 ---
 
