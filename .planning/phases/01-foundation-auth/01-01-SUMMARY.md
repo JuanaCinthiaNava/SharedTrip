@@ -65,11 +65,13 @@ decisions:
   - "shadcn/ui init auto-detected Tailwind v4 — used base-nova style with neutral base color"
   - "Removed shadcn's .dark CSS class and default OKLCH colors — replaced with Tropical Sunset hex palette in :root"
   - "eslint.config.mjs uses FlatCompat + @eslint/eslintrc adapter for next/core-web-vitals + next/typescript"
-  - "Task 3 deferred: Supabase project creation + Vercel auth require user action (auth gate)"
+  - "vercel link --project sharedtrip (lowercase) required due to directory name SharedTrip having capital letters"
+  - "Preview env vars skipped — Vercel requires GitHub Login Connection for preview; production + development fully wired"
+  - "Production alias: https://sharedtrip.vercel.app (canonical URL)"
 metrics:
-  duration_seconds: 539
+  duration_seconds: 780
   completed_date: "2026-05-29"
-  tasks_completed: 2
+  tasks_completed: 4
   tasks_total: 4
   files_created: 15
   files_modified: 4
@@ -77,11 +79,11 @@ metrics:
 
 # Phase 1 Plan 1: Bootstrap + Welcome Screen Summary
 
-**One-liner:** Next.js 16 + Tailwind v4 + shadcn/ui bootstrapped with Tropical Sunset palette, Inter font, and Spanish welcome screen consuming es.ts dictionary — deployed to GitHub, Vercel auth gate pending.
+**One-liner:** Next.js 16 + Tailwind v4 + shadcn/ui bootstrapped with Tropical Sunset palette, Inter font, Spanish welcome screen consuming es.ts, and deployed live to https://sharedtrip.vercel.app with Supabase env vars wired.
 
 ## What Was Built
 
-Tasks 1 and 2 complete. Task 3 (Vercel deploy + Supabase env vars) awaits user auth gate.
+All 4 tasks complete. Deployed to production: https://sharedtrip.vercel.app
 
 ### Task 1: Project Bootstrap
 
@@ -103,13 +105,27 @@ Tasks 1 and 2 complete. Task 3 (Vercel deploy + Supabase env vars) awaits user a
 - Only 400 and 700 font weights used (UI-SPEC constraint)
 - npm run build passes: TypeScript clean, static prerender succeeds
 
-### Task 3: GitHub + Vercel (Partial)
+### Task 3: Vercel Deploy + Supabase Env Vars
 
-- Pushed all commits to existing GitHub repo: https://github.com/JuanaCinthiaNava/SharedTrip
-- Installed Vercel CLI v54.6.1 globally
-- Auth gate hit: Vercel CLI requires login; user must complete `vercel login` flow
-- Supabase project creation deferred to user (requires dashboard action)
-- .gsd-supabase-project.txt created with instructions (gitignored)
+- Linked project to Vercel: `vercel link --project sharedtrip` (created jclnt-projects/sharedtrip)
+- Added env vars to Vercel Production + Development (4 vars):
+  - NEXT_PUBLIC_SUPABASE_URL — points to https://vumiszpfiftmvyrfyixf.supabase.co
+  - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY — sb_publishable_... format (2026 key name)
+  - SUPABASE_SECRET_KEY — server-only, no NEXT_PUBLIC_ prefix (security constraint met)
+  - NEXT_PUBLIC_APP_URL — https://sharedtrip.vercel.app (production), http://localhost:3000 (development)
+- Deployed to Vercel production: https://sharedtrip.vercel.app (build: 30s, TypeScript clean)
+- Redeployed after adding NEXT_PUBLIC_APP_URL to bake it into the build
+- Updated .gsd-supabase-project.txt with actual project ref vumiszpfiftmvyrfyixf (gitignored)
+- Note: Preview env vars not set — Vercel requires GitHub Login Connection (one-time dashboard step) to enable preview deployments; not blocking for MVP
+
+### Task 4: Deployment Verification
+
+- HTTP 200 confirmed: `curl -sI https://sharedtrip.vercel.app` returns HTTP/2 200
+- HTML lang attribute: `lang="es"` confirmed in rendered HTML
+- Spanish welcome heading: "Bienvenido a SharedTrip" confirmed in page source
+- Wordmark: "SharedTrip" rendered via Wordmark component
+- @theme tokens in use: `text-primary`, `text-fg-muted`, `bg-bg` confirmed in rendered classes
+- All strings route through es.auth.* — no hardcoded Spanish in component source
 
 ## Deviations from Plan
 
@@ -142,15 +158,15 @@ Tasks 1 and 2 complete. Task 3 (Vercel deploy + Supabase env vars) awaits user a
 
 **Vercel CLI login (Task 3):**
 - What was attempted: `vercel login` + `vercel link`
-- Gate: Vercel CLI requires browser-based OAuth (showed device code at CLI)
-- Required user action: User must run `vercel login` in terminal, visit Vercel URL, complete OAuth
-- Outcome: Pending — surfaced at Task 4 human-verify checkpoint
+- Gate: Vercel CLI requires browser-based OAuth
+- Required user action: User completed `vercel login` (authenticated as juananava-2806)
+- Outcome: Resolved — deployment live at https://sharedtrip.vercel.app
 
 **Supabase project (Task 3):**
 - What was attempted: Listed as user_setup dashboard_config in PLAN.md
 - Gate: Supabase project creation is a manual dashboard action
-- Required user action: Visit supabase.com/dashboard/projects → New project
-- Outcome: Pending — surfaced at Task 4 human-verify checkpoint
+- Required user action: User created sharedtrip project at supabase.com/dashboard
+- Outcome: Resolved — project ref vumiszpfiftmvyrfyixf, env vars wired in Vercel
 
 ## Locked @theme Token Contract
 
@@ -202,5 +218,22 @@ None — no new network endpoints, auth paths, or file access patterns introduce
 - [x] No tailwind.config.js (Tailwind v4 CSS-first — confirmed)
 - [x] npm run build passes: TypeScript clean, static prerender succeeds
 - [x] GitHub repo: https://github.com/JuanaCinthiaNava/SharedTrip (pushed)
+- [x] Vercel project linked: .vercel/project.json exists (prj_qRfr1dU1vMLSKwrpFEIp6Jc7B0Ss)
+- [x] 4 env vars in Vercel: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY, NEXT_PUBLIC_APP_URL (Production + Development)
+- [x] Production URL returns HTTP 200: https://sharedtrip.vercel.app
+- [x] HTML lang="es" confirmed in production response
+- [x] "Bienvenido a SharedTrip" confirmed in production response
+- [x] .env.local is gitignored (confirmed via git check-ignore)
+
+## Deploy Info
+
+| Item | Value |
+|------|-------|
+| Production URL | https://sharedtrip.vercel.app |
+| Vercel project | jclnt-projects/sharedtrip |
+| Supabase project URL | https://vumiszpfiftmvyrfyixf.supabase.co |
+| Supabase project ref | vumiszpfiftmvyrfyixf |
+| GitHub repo | https://github.com/JuanaCinthiaNava/SharedTrip |
+| Env vars in Vercel | NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY, NEXT_PUBLIC_APP_URL |
 
 ## Self-Check: PASSED
