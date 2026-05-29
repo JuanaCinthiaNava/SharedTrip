@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* SharedTrip — Tropical Sunset palette, dark-mode only */
+/* Source: CONTEXT.md D-05 */
+
+:root {
+  --background: #0F1729;
+  --surface: #1A2238;
+  --primary: #FF6B6B;
+  --accent: #3DCCC7;
+  --secondary: #FFB627;
+  --foreground: #FAFAFA;
+  --foreground-muted: #94A3B8;
+  --destructive: #EF4444;
+  --border: rgba(148, 163, 184, 0.2);
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  /* Project-specific tokens — use these in all component files */
+  --color-bg: var(--background);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-secondary: var(--secondary);
+  --color-fg: var(--foreground);
+  --color-fg-muted: var(--foreground-muted);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+
+  /* shadcn/ui compatibility mapping — shadcn primitives inherit Tropical Sunset */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-muted: var(--surface);
+  --color-muted-foreground: var(--foreground-muted);
+  --color-ring: var(--primary);
+
+  /* Radius tokens */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* Font */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
