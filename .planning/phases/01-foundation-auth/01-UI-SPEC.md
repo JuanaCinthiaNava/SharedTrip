@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-05-29
+revised: 2026-05-29
 ---
 
 # Phase 1 — UI Design Contract: Foundation + Auth
@@ -56,15 +57,15 @@ Single typeface: **Inter variable**, loaded via `next/font/google`.
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
 | Display | 28px | 700 (bold) | 1.2 | Screen headings (welcome screen title, empty-state heading) |
-| Heading | 20px | 600 (semibold) | 1.3 | Section titles, modal/sheet titles, card titles |
+| Heading | 20px | 700 (bold) | 1.3 | Section titles, modal/sheet titles, card titles |
 | Body | 16px | 400 (regular) | 1.5 | Primary readable text — descriptions, form help text, banner copy |
-| Label | 14px | 500 (medium) | 1.4 | Input labels, tab bar labels, badge text, secondary metadata |
+| Label | 14px | 400 (regular) | 1.4 | Input labels, tab bar labels, badge text, secondary metadata |
 
 **Constraints:**
 - Maximum 4 sizes declared above. No additional sizes may be introduced in Phase 1.
-- Maximum 3 weights in use: 400 / 500 / 600–700. Weight 700 is Display only.
-- Brand wordmark "SharedTrip": Inter italic, weight 600, `--color-primary` (coral). Rendered as text, not SVG.
-- Tab bar labels: 12px is acceptable as a sub-token ONLY for the bottom tab bar icon labels (iOS convention) — this is the single exception to the 14px label floor.
+- Maximum 2 weights in use: 400 (regular) and 700 (bold). No intermediate weights (500, 600) permitted.
+- Brand wordmark "SharedTrip": Inter italic, weight 700, `--color-primary` (coral). Rendered as text, not SVG.
+- Tab bar labels: 14px Inter weight 400 (Label token). No sub-token exceptions permitted.
 
 ---
 
@@ -123,6 +124,8 @@ Screens and components this phase ships. All use shadcn primitives unless noted.
 | Gente tab (placeholder) | `/t/[tripId]/gente` | Empty state — Phase 2 fills content. |
 | Docs tab (placeholder) | `/t/[tripId]/docs` | Empty state — Phase 3 fills content. |
 | Itinerario tab (placeholder) | `/t/[tripId]/itin` | Empty state — Phase 4 fills content. |
+
+**Welcome screen focal point:** The full-width coral "Enviar enlace de acceso" button anchors the bottom third of the Welcome screen above the fold. It is the only coral element on the screen and must remain unobscured by the soft keyboard on mobile — implement with `position: sticky; bottom: 24px` inside a flex column layout so the button stays in the lower viewport third when content is short.
 
 ### Components
 
@@ -217,7 +220,7 @@ Screens and components this phase ships. All use shadcn primitives unless noted.
 - Tap: immediate visual response (no delay); tab content swaps without page navigation animation
 - Height: 56px fixed; positioned `fixed bottom-0` with `padding-bottom: env(safe-area-inset-bottom)` for iPhone home indicator
 - Tab order (left to right): Docs / Itin / Gente / Perfil
-- Tab labels: 12px Inter medium; icons: 24px Lucide
+- Tab labels: 14px Inter weight 400 (Label token); icons: 24px Lucide
 
 ### Top Header
 - Height: 56px; `sticky top-0`; background `--color-surface`; bottom border 1px `--color-fg-muted` at 20% opacity
@@ -228,7 +231,7 @@ Screens and components this phase ships. All use shadcn primitives unless noted.
 ### Magic Link Form
 - Email input: `type="email"`, autocomplete `email`, `inputmode="email"` for mobile keyboard
 - Submit button: full-width, coral, disabled while loading; shows spinner (Lucide `Loader2` with `animate-spin`)
-- Validation: Zod `z.string().email()` — inline error below input in `--color-destructive` at 14px
+- Validation: Zod `z.string().email()` — inline error below input in `--color-destructive` at 14px weight 400
 - Error display: shown on blur AND on submit attempt; not on keystroke
 - After successful submit: form replaced by confirmation message (no navigation)
 
@@ -309,7 +312,7 @@ No third-party shadcn registries are declared for Phase 1.
 | Palette (all 7 tokens) | CONTEXT.md D-05 |
 | Bottom tab bar (4 tabs, coral active) | CONTEXT.md D-06 |
 | Inter variable font, self-hosted | CONTEXT.md D-07 |
-| Wordmark-only brand mark, coral italic 600 | CONTEXT.md D-08 |
+| Wordmark-only brand mark, coral italic 700 | CONTEXT.md D-08 |
 | Trip switcher as header dropdown (no /viajes route) | CONTEXT.md D-09 |
 | Anonymous join → direct trip render, no welcome screen | CONTEXT.md D-10 |
 | "Sin cuenta" pill (mango) | CONTEXT.md D-11 |
@@ -326,9 +329,13 @@ No third-party shadcn registries are declared for Phase 1.
 | Magic link expiry: 15 minutes | CONTEXT.md D-04 footer |
 | shadcn/ui + Tailwind v4 CSS-first | CLAUDE.md / CONTEXT.md |
 | All strings in `es.ts`, no hardcoded Spanish in JSX | CONTEXT.md code patterns, REQUIREMENTS.md INFRA-07 |
+| Typography: 2 weights only (400/700) | UI checker revision 2026-05-29 |
+| Typography: 4 sizes only, 12px exception removed | UI checker revision 2026-05-29 |
+| Welcome screen focal point declaration | UI checker revision 2026-05-29 |
 
 ---
 
 *Phase: 01-Foundation+Auth*
 *UI-SPEC created: 2026-05-29*
+*UI-SPEC revised: 2026-05-29 — fixed typography weight/size violations per checker*
 *Status: draft — awaiting checker validation*
