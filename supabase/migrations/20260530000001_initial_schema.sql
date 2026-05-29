@@ -3,8 +3,105 @@
 -- RLS is enabled in the SAME migration as table creation (Pitfall #2 mitigation).
 -- Every policy uses (SELECT auth.uid()) — not bare auth.uid() — for performance.
 -- DO NOT split this into separate migrations.
+--
+-- ORDER:
+--   1. Create all tables + enable RLS (no policies yet)
+--   2. Create is_trip_member() after trip_members table exists
+--   3. Create all policies (can reference both tables and the function)
+
+-- ==========================================
+-- PROFILES TABLE
+-- Keyed by auth.users.id. Stores display_name and avatar_seed (D-17).
+-- Auto-created by trigger in migration 003.
+-- ==========================================
+CREATE TABLE public.profiles (
+  id uuid PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
+  display_name text,
+  avatar_seed text,
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- TRIPS TABLE
+-- ==========================================
+CREATE TABLE public.trips (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  start_date date,
+  end_date date,
+  created_by uuid NOT NULL REFERENCES auth.users ON DELETE CASCADE,
+  invite_token uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- TRIP_MEMBERS TABLE
+-- ==========================================
+CREATE TABLE public.trip_members (
+  trip_id uuid REFERENCES public.trips ON DELETE CASCADE,
+  user_id uuid REFERENCES auth.users ON DELETE CASCADE,
+  role text NOT NULL DEFAULT 'member' CHECK (role IN ('admin', 'member')),
+  joined_at timestamptz DEFAULT now(),
+  PRIMARY KEY (trip_id, user_id)
+);
+ALTER TABLE public.trip_members ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- DOCUMENTS TABLE
+-- ==========================================
+CREATE TABLE public.documents (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
+  uploaded_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
+  name text NOT NULL,
+  file_path text NOT NULL,
+  file_type text NOT NULL DEFAULT 'other' CHECK (file_type IN ('pdf', 'image', 'other')),
+  file_size int8 NOT NULL,
+  category text DEFAULT 'otro' CHECK (category IN ('boleto', 'reservacion', 'identificacion', 'otro')),
+  description text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- ITINERARY_ITEMS TABLE
+-- ==========================================
+CREATE TABLE public.itinerary_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
+  created_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
+  title text NOT NULL,
+  description text,
+  location text,
+  start_time timestamptz,
+  end_time timestamptz,
+  sort_order int4 DEFAULT 0,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.itinerary_items ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- EXPENSES TABLE (v1.5 — schema ready, feature deferred)
+-- ==========================================
+CREATE TABLE public.expenses (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
+  paid_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
+  amount numeric(10,2) NOT NULL,
+  currency text NOT NULL DEFAULT 'MXN',
+  description text NOT NULL,
+  split_between uuid[] NOT NULL DEFAULT '{}',
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
+
 -- ==========================================
 -- SECURITY DEFINER HELPER FUNCTION
+-- Created after trip_members table so the function body can reference it.
 -- Used by all per-trip RLS policies to avoid N+1 queries and recursion risk.
 -- SET search_path = public prevents schema-injection attacks.
 -- ==========================================
@@ -23,17 +120,8 @@ AS $$
 $$;
 
 -- ==========================================
--- PROFILES TABLE
--- Keyed by auth.users.id. Stores display_name and avatar_seed (D-17).
--- Auto-created by trigger in migration 003.
+-- PROFILES POLICIES
 -- ==========================================
-CREATE TABLE public.profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
-  display_name text,
-  avatar_seed text,
-  updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Any authenticated user can read profiles of users they share a trip with
 CREATE POLICY "Members can view co-member profiles"
@@ -63,19 +151,8 @@ TO authenticated
 WITH CHECK (id = (SELECT auth.uid()));
 
 -- ==========================================
--- TRIPS TABLE
+-- TRIPS POLICIES
 -- ==========================================
-CREATE TABLE public.trips (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL,
-  description text,
-  start_date date,
-  end_date date,
-  created_by uuid NOT NULL REFERENCES auth.users ON DELETE CASCADE,
-  invite_token uuid NOT NULL DEFAULT gen_random_uuid(),
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Members can view their trips"
 ON public.trips FOR SELECT
@@ -99,16 +176,8 @@ TO authenticated
 WITH CHECK (created_by = (SELECT auth.uid()));
 
 -- ==========================================
--- TRIP_MEMBERS TABLE
+-- TRIP_MEMBERS POLICIES
 -- ==========================================
-CREATE TABLE public.trip_members (
-  trip_id uuid REFERENCES public.trips ON DELETE CASCADE,
-  user_id uuid REFERENCES auth.users ON DELETE CASCADE,
-  role text NOT NULL DEFAULT 'member' CHECK (role IN ('admin', 'member')),
-  joined_at timestamptz DEFAULT now(),
-  PRIMARY KEY (trip_id, user_id)
-);
-ALTER TABLE public.trip_members ENABLE ROW LEVEL SECURITY;
 
 -- Members can see who else is in their trips
 CREATE POLICY "Members can view trip members"
@@ -139,21 +208,8 @@ USING (
 );
 
 -- ==========================================
--- DOCUMENTS TABLE
+-- DOCUMENTS POLICIES
 -- ==========================================
-CREATE TABLE public.documents (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
-  uploaded_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
-  name text NOT NULL,
-  file_path text NOT NULL,
-  file_type text NOT NULL DEFAULT 'other' CHECK (file_type IN ('pdf', 'image', 'other')),
-  file_size int8 NOT NULL,
-  category text DEFAULT 'otro' CHECK (category IN ('boleto', 'reservacion', 'identificacion', 'otro')),
-  description text,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Members can view trip documents"
 ON public.documents FOR SELECT
@@ -182,22 +238,8 @@ USING (
 );
 
 -- ==========================================
--- ITINERARY_ITEMS TABLE
+-- ITINERARY_ITEMS POLICIES
 -- ==========================================
-CREATE TABLE public.itinerary_items (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
-  created_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
-  title text NOT NULL,
-  description text,
-  location text,
-  start_time timestamptz,
-  end_time timestamptz,
-  sort_order int4 DEFAULT 0,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.itinerary_items ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Members can view itinerary"
 ON public.itinerary_items FOR SELECT
@@ -211,19 +253,8 @@ USING (is_trip_member(trip_id))
 WITH CHECK (is_trip_member(trip_id));
 
 -- ==========================================
--- EXPENSES TABLE (v1.5 — schema ready, feature deferred)
+-- EXPENSES POLICIES
 -- ==========================================
-CREATE TABLE public.expenses (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  trip_id uuid NOT NULL REFERENCES public.trips ON DELETE CASCADE,
-  paid_by uuid NOT NULL REFERENCES auth.users ON DELETE SET NULL,
-  amount numeric(10,2) NOT NULL,
-  currency text NOT NULL DEFAULT 'MXN',
-  description text NOT NULL,
-  split_between uuid[] NOT NULL DEFAULT '{}',
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Members can view expenses"
 ON public.expenses FOR SELECT
