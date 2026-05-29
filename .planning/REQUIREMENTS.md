@@ -124,23 +124,66 @@ Excluidos explícitamente — documentados para prevenir scope creep.
 
 ## Traceability
 
-Mapeo de requisitos a fases. Se actualiza durante roadmap creation.
+Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01..07 | Phase 1 | Pending |
-| AUTH-01..06 | Phase 1 | Pending |
-| TRIP-01..09 | Phase 2 | Pending |
-| DOCS-01..10 | Phase 3 | Pending |
-| PWA-01..06 | Phase 3 | Pending |
-| ITIN-01..05 | Phase 4 | Pending |
-| UI-01..05 | All phases | Pending |
+| INFRA-01 | Phase 1: Foundation + Auth | Pending |
+| INFRA-02 | Phase 1: Foundation + Auth | Pending |
+| INFRA-03 | Phase 1: Foundation + Auth | Pending |
+| INFRA-04 | Phase 1: Foundation + Auth | Pending |
+| INFRA-05 | Phase 1: Foundation + Auth | Pending |
+| INFRA-06 | Phase 1: Foundation + Auth | Pending |
+| INFRA-07 | Phase 1: Foundation + Auth | Pending |
+| AUTH-01 | Phase 1: Foundation + Auth | Pending |
+| AUTH-02 | Phase 1: Foundation + Auth | Pending |
+| AUTH-03 | Phase 1: Foundation + Auth | Pending |
+| AUTH-04 | Phase 1: Foundation + Auth | Pending |
+| AUTH-05 | Phase 1: Foundation + Auth | Pending |
+| AUTH-06 | Phase 1: Foundation + Auth | Pending |
+| UI-01 | Phase 1: Foundation + Auth | Pending |
+| UI-02 | Phase 1: Foundation + Auth | Pending |
+| UI-03 | Phase 1: Foundation + Auth | Pending |
+| TRIP-01 | Phase 2: Trip + Member Management | Pending |
+| TRIP-02 | Phase 2: Trip + Member Management | Pending |
+| TRIP-03 | Phase 2: Trip + Member Management | Pending |
+| TRIP-04 | Phase 2: Trip + Member Management | Pending |
+| TRIP-05 | Phase 2: Trip + Member Management | Pending |
+| TRIP-06 | Phase 2: Trip + Member Management | Pending |
+| TRIP-07 | Phase 2: Trip + Member Management | Pending |
+| TRIP-08 | Phase 2: Trip + Member Management | Pending |
+| TRIP-09 | Phase 2: Trip + Member Management | Pending |
+| UI-05 | Phase 2: Trip + Member Management | Pending |
+| DOCS-01 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-02 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-03 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-04 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-05 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-06 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-07 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-08 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-09 | Phase 3: Document Vault + PWA Offline | Pending |
+| DOCS-10 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-01 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-02 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-03 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-04 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-05 | Phase 3: Document Vault + PWA Offline | Pending |
+| PWA-06 | Phase 3: Document Vault + PWA Offline | Pending |
+| UI-04 | Phase 3: Document Vault + PWA Offline | Pending |
+| ITIN-01 | Phase 4: Itinerary + Realtime | Pending |
+| ITIN-02 | Phase 4: Itinerary + Realtime | Pending |
+| ITIN-03 | Phase 4: Itinerary + Realtime | Pending |
+| ITIN-04 | Phase 4: Itinerary + Realtime | Pending |
+| ITIN-05 | Phase 4: Itinerary + Realtime | Pending |
 
 **Coverage:**
-- v1 requirements: 46 total
-- Mapped to phases: 46 (estimado, validar con roadmapper)
+- v1 requirements: 48 total (7 INFRA + 6 AUTH + 9 TRIP + 10 DOCS + 6 PWA + 5 ITIN + 5 UI)
+- Mapped to phases: 48/48
 - Unmapped: 0
+
+> UI-01..05 are cross-cutting conventions. Each is assigned to the phase where it first ships as a visible, enforced constraint — subsequent phases inherit the pattern. Phase 5 carries no new requirements; it is a QA hardening gate.
 
 ---
 *Requirements defined: 2026-05-29*
-*Last updated: 2026-05-29 after initial definition*
+*Last updated: 2026-05-29 after roadmap creation*
