@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: None (not started)
+current_plan: None
+status: planning
+last_updated: "2026-05-29T21:06:41.823Z"
+progress:
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+---
+
 # Project State: SharedTrip
 
 **Last updated:** 2026-05-29
@@ -109,6 +125,7 @@ None currently.
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
 **Key files:**
+
 - `.planning/PROJECT.md` — core value, constraints, decisions
 - `.planning/REQUIREMENTS.md` — all v1 requirements with REQ-IDs
 - `.planning/ROADMAP.md` — this roadmap
