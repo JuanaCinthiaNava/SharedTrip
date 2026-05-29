@@ -44,6 +44,7 @@ yarn-error.log*
 
 # Supabase local
 supabase/.temp/
+supabase/.branches/
 
 # GSD executor artifacts (contain project refs, never secrets)
 .gsd-*.txt

@@ -1,0 +1,23 @@
+# .github/workflows/keep-alive.yml
+# Prevents Supabase free-tier from pausing (it pauses after 7 days of inactivity).
+# Runs every 5 minutes — 288 runs/day, ~720 min/month, well within GitHub Actions free tier.
+# Uses publishable key only (low-privilege). Service role key (SUPABASE_SECRET_KEY)
+# is NEVER added as a GitHub Actions secret (T-02-06 mitigation).
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # Every 5 minutes
+  workflow_dispatch:          # Manual trigger for smoke-testing
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -sf \
+            -H "apikey: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" \
+            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/" \
+            || echo "Ping failed — Supabase may be waking up"
