@@ -1,11 +1,12 @@
 ---
 phase: 1
 slug: foundation-auth
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-29
 revised: 2026-05-29
+reviewed_at: 2026-05-29
 ---
 
 # Phase 1 — UI Design Contract: Foundation + Auth
