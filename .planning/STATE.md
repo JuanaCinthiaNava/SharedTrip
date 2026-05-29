@@ -5,13 +5,13 @@ milestone_name: milestone
 current_phase: 01
 current_plan: 2
 status: executing
-last_updated: "2026-05-29T23:35:00.000Z"
+last_updated: "2026-05-29T23:56:10.412Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State: SharedTrip
@@ -34,11 +34,11 @@ progress:
 ## Current Position
 
 Phase: 01 (foundation-auth) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 **Current phase:** 01
-**Current plan:** 2
+**Current plan:** 3
 **Status:** Ready to execute
-**Progress:** [██░░░░░░░░] 20%
+**Progress:** [████░░░░░░] 40%
 
 ```
 [ ] Phase 1: Foundation + Auth
@@ -56,12 +56,13 @@ Plan: 2 of 5
 |--------|-------|
 | Phases total | 5 |
 | Phases complete | 0 |
-| Plans complete | 1 |
+| Plans complete | 2 |
 | Requirements mapped | 48/48 |
 | Deadline | 2026-06-29 (approx) |
 
 ---
 | Phase 01-foundation-auth P01 | 539 | 4 tasks | 19 files |
+| Phase 01-foundation-auth P02 | 30 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Plan: 2 of 5
 | Tailwind v4 CSS-first config | No tailwind.config.js; use `@import "tailwindcss"` in globals.css |
 | Signed upload URL pattern | File bytes never pass through Next.js (Vercel 4.5MB body limit) |
 | `is_trip_member()` SECURITY DEFINER | Prevents N+1 RLS queries and recursion risk |
+| Tables created before is_trip_member() in migration | PostgreSQL validates sql function bodies against existing relations at creation time — function must come after trip_members table |
+| All RLS policies use (SELECT auth.uid()) | Prevents per-row re-evaluation of auth.uid(); required performance pattern per RESEARCH Anti-Patterns |
 | Anonymous-first join | Frictionless group invite — no email required to see the trip |
 | Spanish-only UI via `es.ts` dictionary | i18n-ready without i18n library overhead |
 | Phase 5 = QA gate, no new requirements | Hardens Phases 1-4 before real trip; not scope creep |
@@ -123,7 +126,7 @@ None currently.
 
 ## Session Continuity
 
-**To resume:** Run `/gsd:execute-phase 01` to continue Phase 1. Next plan: 01-02-PLAN.md (Database schema + RLS).
+**To resume:** Run `/gsd:execute-phase 01` to continue Phase 1. Next plan: 01-03-PLAN.md (Supabase client + auth + magic link).
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 

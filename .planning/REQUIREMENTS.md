@@ -10,10 +10,10 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 ### Infrastructure & Setup
 
 - [x] **INFRA-01**: Proyecto Supabase creado con DB Postgres, Auth, Storage y Realtime habilitados
-- [ ] **INFRA-02**: Esquema inicial con tablas `trips`, `trip_members`, `documents`, `itinerary_items`, `expenses` (esta última vacía, lista para v1.5)
-- [ ] **INFRA-03**: Row-Level Security (RLS) habilitada en todas las tablas, con función `is_trip_member(trip_id)` `SECURITY DEFINER`
-- [ ] **INFRA-04**: Bucket de Storage `trip-documents` privado, con políticas que solo permiten acceso a miembros del trip
-- [ ] **INFRA-05**: Keep-alive cron (GitHub Actions) hace ping a Supabase cada 5 minutos para evitar pausa por inactividad
+- [x] **INFRA-02**: Esquema inicial con tablas `trips`, `trip_members`, `documents`, `itinerary_items`, `expenses` (esta última vacía, lista para v1.5)
+- [x] **INFRA-03**: Row-Level Security (RLS) habilitada en todas las tablas, con función `is_trip_member(trip_id)` `SECURITY DEFINER`
+- [x] **INFRA-04**: Bucket de Storage `trip-documents` privado, con políticas que solo permiten acceso a miembros del trip
+- [x] **INFRA-05**: Keep-alive cron (GitHub Actions) hace ping a Supabase cada 5 minutos para evitar pausa por inactividad
 - [x] **INFRA-06**: Deploy a Vercel con dominio funcional y variables de entorno seguras
 - [x] **INFRA-07**: Diccionario `es.ts` para todas las strings de UI (no hardcoded JSX) — i18n-ready aunque solo se exponga español
 
@@ -129,10 +129,10 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | INFRA-01 | Phase 1: Foundation + Auth | Complete |
-| INFRA-02 | Phase 1: Foundation + Auth | Pending |
-| INFRA-03 | Phase 1: Foundation + Auth | Pending |
-| INFRA-04 | Phase 1: Foundation + Auth | Pending |
-| INFRA-05 | Phase 1: Foundation + Auth | Pending |
+| INFRA-02 | Phase 1: Foundation + Auth | Complete |
+| INFRA-03 | Phase 1: Foundation + Auth | Complete |
+| INFRA-04 | Phase 1: Foundation + Auth | Complete |
+| INFRA-05 | Phase 1: Foundation + Auth | Complete |
 | INFRA-06 | Phase 1: Foundation + Auth | Complete |
 | INFRA-07 | Phase 1: Foundation + Auth | Complete |
 | AUTH-01 | Phase 1: Foundation + Auth | Pending |
