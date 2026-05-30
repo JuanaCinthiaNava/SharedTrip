@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
+import { AnonymousBanner } from '@/components/common/AnonymousBanner'
 
 interface TripLayoutProps {
   children: React.ReactNode
@@ -66,6 +67,8 @@ export default async function TripLayout({ children, params }: TripLayoutProps) 
         isAnonymous={user.is_anonymous ?? false}
         trips={otherTrips}
       />
+      {/* Plan 05: AnonymousBanner shown below header when user is anonymous (D-12) */}
+      {user.is_anonymous && <AnonymousBanner />}
       <main className="pt-4 pb-16">
         {children}
       </main>
