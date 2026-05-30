@@ -19,9 +19,9 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 
 ### Authentication
 
-- [ ] **AUTH-01**: Usuario puede registrarse / iniciar sesión vía magic link enviado a su email
-- [ ] **AUTH-02**: Magic link email tiene subject único por request para evitar Gmail threading / clipping
-- [ ] **AUTH-03**: Sesión persiste entre refrescos del navegador y reinicios del dispositivo
+- [x] **AUTH-01**: Usuario puede registrarse / iniciar sesión vía magic link enviado a su email
+- [x] **AUTH-02**: Magic link email tiene subject único por request para evitar Gmail threading / clipping
+- [x] **AUTH-03**: Sesión persiste entre refrescos del navegador y reinicios del dispositivo
 - [ ] **AUTH-04**: Usuario puede cerrar sesión desde cualquier pantalla
 - [ ] **AUTH-05**: Invitado puede unirse a un trip vía anonymous session (Supabase `signInAnonymously`) sin email
 - [ ] **AUTH-06**: Invitado anónimo puede upgrade a cuenta real (`updateUser({ email })`) conservando membresía a sus trips
@@ -135,9 +135,9 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | INFRA-05 | Phase 1: Foundation + Auth | Complete |
 | INFRA-06 | Phase 1: Foundation + Auth | Complete |
 | INFRA-07 | Phase 1: Foundation + Auth | Complete |
-| AUTH-01 | Phase 1: Foundation + Auth | Pending |
-| AUTH-02 | Phase 1: Foundation + Auth | Pending |
-| AUTH-03 | Phase 1: Foundation + Auth | Pending |
+| AUTH-01 | Phase 1: Foundation + Auth | Complete |
+| AUTH-02 | Phase 1: Foundation + Auth | Complete |
+| AUTH-03 | Phase 1: Foundation + Auth | Complete |
 | AUTH-04 | Phase 1: Foundation + Auth | Pending |
 | AUTH-05 | Phase 1: Foundation + Auth | Pending |
 | AUTH-06 | Phase 1: Foundation + Auth | Pending |

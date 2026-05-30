@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 01
-current_plan: 2
+current_plan: 3
 status: executing
-last_updated: "2026-05-29T23:56:10.412Z"
+last_updated: "2026-05-30T00:14:29.176Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -34,11 +34,11 @@ progress:
 ## Current Position
 
 Phase: 01 (foundation-auth) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 **Current phase:** 01
 **Current plan:** 3
 **Status:** Ready to execute
-**Progress:** [████░░░░░░] 40%
+**Progress:** [██████░░░░] 60%
 
 ```
 [ ] Phase 1: Foundation + Auth
@@ -63,6 +63,7 @@ Plan: 3 of 5
 ---
 | Phase 01-foundation-auth P01 | 539 | 4 tasks | 19 files |
 | Phase 01-foundation-auth P02 | 30 | 2 tasks | 6 files |
+| Phase 01-foundation-auth P03 | 25 | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Plan: 3 of 5
 | Anonymous-first join | Frictionless group invite — no email required to see the trip |
 | Spanish-only UI via `es.ts` dictionary | i18n-ready without i18n library overhead |
 | Phase 5 = QA gate, no new requirements | Hardens Phases 1-4 before real trip; not scope creep |
+| Simple magic link (signInWithOtp) approach | No admin.generateLink() + Resend SDK needed — subject uniqueness via {{ .Token }} in Supabase template |
+| getUser() only in middleware, never getSession() | getUser() revalidates JWT server-to-server; getSession() reads stale local cookie — security anti-pattern |
+| T-03-06 open-redirect guard in /auth/callback | Validates ?next param starts with / and not // before redirect |
 
 ### Critical Pitfalls (address in stated phases)
 
@@ -126,7 +130,7 @@ None currently.
 
 ## Session Continuity
 
-**To resume:** Run `/gsd:execute-phase 01` to continue Phase 1. Next plan: 01-03-PLAN.md (Supabase client + auth + magic link).
+**To resume:** Run `/gsd:execute-phase 01` to continue Phase 1. Next plan: 01-04-PLAN.md (anonymous join flow).
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
