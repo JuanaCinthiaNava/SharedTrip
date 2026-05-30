@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation + Auth** — Deployed shell, magic link + anonymous join working, RLS locked down, keep-alive active, i18n dictionary in place
+- [x] **Phase 1: Foundation + Auth** — Deployed shell, magic link + anonymous join working, RLS locked down, keep-alive active, i18n dictionary in place (completed 2026-05-30)
 - [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite link, join as member, view/manage member list, edit/archive trip
 - [ ] **Phase 3: Document Vault + PWA Offline** — Upload, view, offline cache, QR fullscreen, install prompt — the core value ships here
 - [ ] **Phase 4: Itinerary + Realtime** — Collaborative chronological timeline with live updates, doc-to-event linking
@@ -107,7 +107,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 4/5 | In Progress|  |
+| 1. Foundation + Auth | 5/5 | Complete   | 2026-05-30 |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
