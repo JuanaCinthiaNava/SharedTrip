@@ -36,7 +36,7 @@ Plans:
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
 - [x] 01-03-PLAN.md — Magic link auth vertical slice (@supabase/ssr factories + middleware + signInWithOtp Server Action + /auth/callback + Resend SMTP)
 - [x] 01-04-PLAN.md — Trip shell (bottom tab bar + top header + trip switcher) + Perfil tab (display name editor + sign-out) + PWA manifest + avatar generator
-- [ ] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
+- [x] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
 
 **UI hint**: yes
 
