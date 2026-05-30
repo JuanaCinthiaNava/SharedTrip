@@ -1,9 +1,10 @@
-// Welcome screen — first vertical slice (Plan 01-01)
+// Welcome screen — magic link auth entry point (Plan 01-03)
 // Server Component: no auth, no data fetching — pure welcome UI.
+// MagicLinkForm is a 'use client' component that handles the form submission.
 // All text via es.auth — zero hardcoded Spanish strings here.
 
-import { Button } from '@/components/ui/button'
 import { Wordmark } from '@/components/common/Wordmark'
+import { MagicLinkForm } from '@/components/auth/MagicLinkForm'
 import { es } from '@/i18n/es'
 
 export default function WelcomePage() {
@@ -24,14 +25,10 @@ export default function WelcomePage() {
         </p>
       </div>
 
-      {/* Bottom third: sticky CTA (wired in Plan 03 — disabled visual anchor for now) */}
-      <div className="pb-6">
-        <Button
-          className="w-full sticky bottom-6"
-          disabled
-        >
-          {es.auth.sendLinkCta}
-        </Button>
+      {/* Bottom third: sticky CTA — MagicLinkForm replaces the disabled button placeholder from Plan 01 */}
+      {/* UI-SPEC focal-point: sticky bottom-6 so the form stays visible above the soft keyboard */}
+      <div className="sticky bottom-6 mt-auto pb-0">
+        <MagicLinkForm />
       </div>
     </main>
   )

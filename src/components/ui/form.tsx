@@ -104,24 +104,18 @@ function FormLabel({
   )
 }
 
-function FormControl({ children, ...props }: React.ComponentProps<"div">) {
+// FormControl renders children with the correct id and aria attributes injected.
+// Uses React.cloneElement to forward formItemId to the first child element.
+function FormControl({ children }: { children: React.ReactElement }) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
-  // Render children directly but pass id/aria through a wrapper
-  return (
-    <div
-      id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!error}
-      {...props}
-    >
-      {children}
-    </div>
-  )
+  return React.cloneElement(children, {
+    id: formItemId,
+    'aria-describedby': !error
+      ? formDescriptionId
+      : `${formDescriptionId} ${formMessageId}`,
+    'aria-invalid': !!error,
+  } as React.HTMLAttributes<HTMLElement>)
 }
 
 function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
