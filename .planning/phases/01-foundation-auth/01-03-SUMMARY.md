@@ -207,6 +207,20 @@ No new threat surface beyond the plan's threat model. T-03-06 open-redirect miti
 - **Plan 05 (app shell):** `signOut()` from `src/actions/auth.ts` is ready for the AlertDialog in the Perfil tab. The browser factory (`createClient` from `client.ts`) is available for client-side user detection.
 - **Blocker before checkpoint:** Resend SMTP + email template + redirect URLs must be configured in Supabase dashboard before Task 4 verification can pass.
 
+## Configuration Applied Post-SUMMARY (orchestrator, 2026-05-30)
+
+All Resend/SMTP/URL configuration was applied via Supabase Management API after the executor returned:
+
+- `smtp_host`: smtp.resend.com, port 465, user `resend`, pass=`re_E21q…` (Resend API key)
+- `smtp_admin_email`: `onboarding@resend.dev` (Resend free domain — sends to verified Resend account email only; for prod, add custom verified domain in Phase 5)
+- `smtp_sender_name`: `SharedTrip`, max_frequency 60s
+- `site_url`: `https://sharedtrip.vercel.app`
+- `uri_allow_list`: `https://sharedtrip.vercel.app/auth/callback,http://localhost:3000/auth/callback`
+- `mailer_subjects_magic_link`: `Acceso a tu viaje · {{ .Token }}` (anti-Gmail-threading: `{{ .Token }}` varies per request)
+- `mailer_templates_magic_link_content`: Spanish HTML template with Tropical Sunset palette + coral CTA + 15-min expiry footer
+
+User verification on real iPhone (Task 4) is deferred to the phase-level UAT in `verify-work` — code path and configuration are complete; only human eyes-on test remains.
+
 ## Self-Check: PASSED
 
 - [x] src/lib/supabase/client.ts exists: contains `createBrowserClient`
