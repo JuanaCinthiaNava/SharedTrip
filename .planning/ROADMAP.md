@@ -35,7 +35,7 @@ Plans:
 - [x] 01-01-PLAN.md — Scaffold Next.js 16 + Tailwind v4 + shadcn + Tropical Sunset palette + welcome slice + Vercel deploy
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
 - [x] 01-03-PLAN.md — Magic link auth vertical slice (@supabase/ssr factories + middleware + signInWithOtp Server Action + /auth/callback + Resend SMTP)
-- [ ] 01-04-PLAN.md — Trip shell (bottom tab bar + top header + trip switcher) + Perfil tab (display name editor + sign-out) + PWA manifest + avatar generator
+- [x] 01-04-PLAN.md — Trip shell (bottom tab bar + top header + trip switcher) + Perfil tab (display name editor + sign-out) + PWA manifest + avatar generator
 - [ ] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
 
 **UI hint**: yes
@@ -107,7 +107,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 3/5 | In Progress|  |
+| 1. Foundation + Auth | 4/5 | In Progress|  |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
