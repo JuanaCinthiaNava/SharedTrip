@@ -46,6 +46,19 @@ export const es = {
     emptyBody: 'Pídele un link a quien te invitó o crea uno.',
     createCta: '+ Crear nuevo viaje',
   },
+  // Anonymous join + upgrade flow
+  anon: {
+    pill: 'Sin cuenta',
+    bannerHeading: 'Sin email guardado — agrega uno para no perder acceso.',
+    bannerCta: 'Agregar email',
+    bannerDismiss: 'Cerrar',
+    upgradeSheetHeading: 'Guarda tu acceso',
+    upgradeSheetBody: 'Agrega tu email para no perder acceso si cierras la app.',
+    upgradeEmailLabel: 'Tu correo electrónico',
+    upgradeSubmitCta: 'Guardar email',
+    upgradeSuccessToast: (email: string) =>
+      `Te enviamos un correo de confirmación a ${email}. Toca el enlace para terminar.`,
+  },
   errors: {
     invalidLink: 'Este enlace ya expiró o no es válido. Solicita uno nuevo.',
     sendLinkFailed: 'No pudimos enviarte el enlace. Verifica tu correo e intenta de nuevo.',
