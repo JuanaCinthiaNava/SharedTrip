@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 current_plan: 5
-status: ready-for-verify
-last_updated: "2026-05-30T01:00:00.000Z"
+status: human_needed
+last_updated: "2026-05-30T01:10:00.000Z"
 progress:
   total_phases: 5
   completed_phases: 0
@@ -27,26 +27,53 @@ progress:
 
 **Stack:** Next.js 16 + TypeScript + Tailwind v4 + shadcn/ui + Supabase (Auth + PostgreSQL + Storage + Realtime) + Serwist + Dexie.js + Vercel
 
-**Current focus:** Phase 01 — foundation-auth (READY FOR HUMAN VERIFY)
+**Current focus:** Phase 01 — foundation-auth (VERIFICATION: human_needed — automated checks passed, awaiting real-device tests)
 
 ---
 
 ## Current Position
 
-Phase: 01 (foundation-auth) — READY FOR VERIFY (checkpoint:human-verify at Plan 05 Task 4)
+Phase: 01 (foundation-auth) — HUMAN_NEEDED (all code verified; awaiting real-device + dashboard confirmation)
 Plan: 5 of 5
 **Current phase:** 01
 **Current plan:** 5
-**Status:** ready-for-verify
-**Progress:** [██████████] 100% (Phase 1 plans complete — awaiting human verification)
+**Status:** human_needed
+**Progress:** [██████████] 100% (Phase 1 plans complete — automated verification passed, human UAT pending)
 
 ```
-[ ] Phase 1: Foundation + Auth
+[ ] Phase 1: Foundation + Auth  ← human_needed (see 01-VERIFICATION.md)
 [ ] Phase 2: Trip + Member Management
 [ ] Phase 3: Document Vault + PWA Offline
 [ ] Phase 4: Itinerary + Realtime
 [ ] Phase 5: Polish + Real-device QA
 ```
+
+### Phase 1 Verification Summary
+
+**Automated verification score:** 14/16 must-haves verified
+**Report:** `.planning/phases/01-foundation-auth/01-VERIFICATION.md`
+
+**What passed:**
+- All 5 plans complete (5/5 commits pushed to main)
+- `npm run build` exits 0, `tsc --noEmit` exits 0, `npm test` 7/7 passing
+- All 32+ artifacts exist, are substantive, and are wired correctly
+- Schema: 6 tables, RLS on all tables, 17 policies, `is_trip_member` SECURITY DEFINER, storage RLS
+- Auth: `@supabase/ssr` (not deprecated auth-helpers), `getUser()` only (no `getSession()`), T-03-06 open-redirect guard
+- i18n: `es.ts` complete with all namespaces; zero English user-facing text in components
+- PWA manifest: code correct, builds correctly; production 404 needs redeploy (not a code bug)
+- Keep-alive: `*/5 * * * *` cron, correct secret usage
+
+**What requires human device testing:**
+1. Magic link flow end-to-end (AUTH-01, AUTH-02, AUTH-03) — Resend SMTP + real iPhone
+2. Anonymous join flow (AUTH-05) — Supabase anon sign-ins enabled + real device
+3. Anonymous upgrade (AUTH-06) — live email confirmation link
+4. Supabase dashboard config: anon sign-ins enabled, OTP expiry 900s, Magic Link template
+5. GitHub Actions keep-alive manual workflow_dispatch confirmation
+6. Production manifest.webmanifest: requires `vercel --prod` redeploy
+
+**Minor deviations (non-blocking):**
+- `"Volver al inicio"` hardcoded in `check-email/page.tsx:42` (not in `es.ts`)
+- ROADMAP.md Progress Table shows `4/5` — stale, should be `5/5`
 
 ---
 
@@ -56,7 +83,7 @@ Plan: 5 of 5
 |--------|-------|
 | Phases total | 5 |
 | Phases complete | 0 |
-| Plans complete | 2 |
+| Plans complete | 5 |
 | Requirements mapped | 48/48 |
 | Deadline | 2026-06-29 (approx) |
 
@@ -95,11 +122,11 @@ Plan: 5 of 5
 | Pitfall | Severity | Phase |
 |---------|----------|-------|
 | iOS Safari 7-day IndexedDB eviction | CRITICAL | Phase 1 (navigator.storage.persist()), Phase 3 (re-cache on launch) |
-| Supabase RLS disabled by default | CRITICAL | Phase 1 (every table migration) |
+| Supabase RLS disabled by default | CRITICAL | Phase 1 (every table migration) — MITIGATED |
 | Next.js 1MB body limit on file uploads | CRITICAL | Phase 3 (signed URL pattern — never proxy files) |
-| Gmail magic link threading (expired link) | HIGH | Phase 1 (unique email subject per request) |
-| Magic link same-browser restriction on iOS | HIGH | Phase 1 (implicit flow or OTP fallback) |
-| Supabase free tier pause (30s cold start) | HIGH | Phase 1 (GitHub Actions keep-alive cron) |
+| Gmail magic link threading (expired link) | HIGH | Phase 1 (unique email subject per request) — MITIGATED in code |
+| Magic link same-browser restriction on iOS | HIGH | Phase 1 (implicit flow or OTP fallback) — human test pending |
+| Supabase free tier pause (30s cold start) | HIGH | Phase 1 (GitHub Actions keep-alive cron) — MITIGATED |
 | Silent offline upload failure | HIGH | Phase 3 (block upload when offline + clear messaging) |
 | EXIF rotation on iPhone photos | MEDIUM | Phase 3 (client-side EXIF correction before upload) |
 
@@ -119,20 +146,24 @@ Plan: 5 of 5
 
 ### Todos
 
-- [ ] Create Next.js 16 project with TypeScript + Tailwind v4 + App Router
-- [ ] Set up Supabase project (DB + Auth + Storage + Realtime enabled)
-- [ ] Configure Supabase CLI for local development
-- [ ] Run Phase 1 planning: `/gsd:plan-phase 1`
+- [x] Create Next.js 16 project with TypeScript + Tailwind v4 + App Router
+- [x] Set up Supabase project (DB + Auth + Storage + Realtime enabled)
+- [x] Configure Supabase CLI for local development
+- [x] Run Phase 1 planning: `/gsd:plan-phase 1`
+- [ ] Complete Phase 1 human UAT: real iPhone magic link + anonymous join tests
+- [ ] Run `vercel --prod` to redeploy (fixes manifest.webmanifest 404 on production)
+- [ ] Fix ROADMAP.md Progress Table: update Phase 1 from `4/5` to `5/5 | human_needed`
+- [ ] Fix `src/app/auth/check-email/page.tsx:42`: add `es.auth.backToHome` key and use it
 
 ### Blockers
 
-None currently.
+None — all code is complete. Human UAT and minor cleanup tasks remain.
 
 ---
 
 ## Session Continuity
 
-**To resume:** Phase 1 is complete. Human verification of anonymous join flow on real iPhone required (see 01-05-PLAN.md checkpoint:human-verify Task 4). After verification, run `/gsd:execute-phase 02` to start Phase 2.
+**To resume:** Phase 1 automated verification passed (14/16). Complete human UAT items listed above (see `.planning/phases/01-foundation-auth/01-VERIFICATION.md` Human Verification section). After all items pass, update ROADMAP.md Phase 1 status to `Complete` and run `/gsd:execute-phase 02` to start Phase 2.
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
@@ -142,6 +173,7 @@ None currently.
 - `.planning/REQUIREMENTS.md` — all v1 requirements with REQ-IDs
 - `.planning/ROADMAP.md` — this roadmap
 - `.planning/STATE.md` — this file
+- `.planning/phases/01-foundation-auth/01-VERIFICATION.md` — phase verification report (14/16 verified, human_needed)
 - `.planning/research/ARCHITECTURE.md` — build order, data model, RLS patterns, code snippets
 - `.planning/research/PITFALLS.md` — critical gotchas with per-phase guidance
 - `.planning/research/STACK.md` — exact versions, installation commands
@@ -149,3 +181,4 @@ None currently.
 ---
 
 *State initialized: 2026-05-29 after roadmap creation*
+*Last updated: 2026-05-30 after Phase 1 automated verification*
