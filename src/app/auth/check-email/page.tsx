@@ -39,7 +39,7 @@ export default async function CheckEmailPage({ searchParams }: CheckEmailPagePro
           href="/"
           className="text-accent underline-offset-4 hover:underline text-sm"
         >
-          Volver al inicio
+          {es.auth.backToHome}
         </Link>
       </div>
     </main>

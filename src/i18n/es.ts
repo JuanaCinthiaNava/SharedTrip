@@ -13,6 +13,7 @@ export const es = {
     checkEmailHeading: 'Revisa tu correo',
     checkEmailBody: (email: string) =>
       `Te enviamos un enlace a ${email}. Toca el enlace para entrar — expira en 15 minutos.`,
+    backToHome: 'Volver al inicio',
   },
   // Trip shell tabs — labels and empty states
   tabs: {
