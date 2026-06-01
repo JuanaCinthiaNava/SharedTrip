@@ -241,6 +241,7 @@ export type Database = {
     }
     Functions: {
       is_trip_member: { Args: { check_trip_id: string }; Returns: boolean }
+      get_trip_id_by_invite_token: { Args: { lookup_token: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

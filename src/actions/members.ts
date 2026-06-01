@@ -13,7 +13,8 @@ import { es } from '@/i18n/es'
  *
  * Logic:
  * 1. Get current session. If no user, call signInAnonymously().
- * 2. Look up the trip by invite_token.
+ * 2. Resolve the trip id from invite_token via the get_trip_id_by_invite_token RPC
+ *    (SECURITY DEFINER — escapes the membership-gated trips SELECT policy).
  * 3. Upsert a trip_members row (idempotent — re-joining is safe).
  * 4. Return { tripId, error }.
  *
@@ -44,15 +45,18 @@ export async function joinTrip(
     return { tripId: null, error: es.errors.genericNetwork }
   }
 
-  // Step 2: Look up the trip by invite_token
-  // PGRST116 is returned by .single() when 0 rows match
-  const { data: trip, error: tripErr } = await supabase
-    .from('trips')
-    .select('id')
-    .eq('invite_token', token)
-    .single()
+  // Step 2: Resolve the trip id from the invite_token.
+  // The freshly-created anonymous user is NOT yet a member, and the sole trips SELECT
+  // policy is membership-gated (USING is_trip_member(id)) — a direct trips.select here
+  // would return 0 rows for a valid token. Resolution therefore goes through the
+  // SECURITY DEFINER RPC get_trip_id_by_invite_token, the controlled bypass that returns
+  // only the trip id. Membership is established by the upsert in Step 3, after which the
+  // trips SELECT policy passes and the /t/[tripId] shell loads.
+  const { data: resolvedTripId, error: tripErr } = await supabase.rpc('get_trip_id_by_invite_token', {
+    lookup_token: token,
+  })
 
-  if (tripErr || !trip) {
+  if (tripErr || !resolvedTripId) {
     return { tripId: null, error: es.errors.invalidJoinToken }
   }
 
@@ -61,7 +65,7 @@ export async function joinTrip(
   const { error: upsertErr } = await supabase
     .from('trip_members')
     .upsert(
-      { trip_id: trip.id, user_id: userId, role: 'member' },
+      { trip_id: resolvedTripId, user_id: userId, role: 'member' },
       { onConflict: 'trip_id,user_id' }
     )
 
@@ -70,5 +74,5 @@ export async function joinTrip(
     console.error('[joinTrip] upsert error (may be harmless):', upsertErr.message)
   }
 
-  return { tripId: trip.id, error: null }
+  return { tripId: resolvedTripId, error: null }
 }
