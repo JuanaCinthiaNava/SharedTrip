@@ -65,12 +65,29 @@ completed: 2026-06-01
 
 - **Added `src/types/database.ts`** (not in the plan's `files_modified`). The generated `Database` type predates migration 0005, so `supabase.rpc('get_trip_id_by_invite_token', …)` failed type-checking (the name resolved against `is_trip_member`). Added a one-line `Functions` entry `get_trip_id_by_invite_token: { Args: { lookup_token: string }; Returns: string }`. The canonical fix is to regenerate types after the migration is applied live (`supabase gen types`), which should reproduce this entry.
 
-## ⚠️ Outstanding — LIVE APPLY REQUIRED (blocks UAT re-test)
+## 🔬 Corrected root cause — Gap 2 was FOUR layers, not one
 
-The repo change is complete and committed, **but the migration is NOT yet applied to the live Supabase project** (`vumiszpfiftmvyrfyixf`). No Supabase CLI or Management API token is available in this environment, so it could not be pushed automatically.
+The original debug diagnosis (RLS chicken-and-egg on `trips` SELECT → PGRST116) was tested by
+calling `joinTrip()` directly, which bypassed the page's own guards. End-to-end testing of the
+real `/join/{token}` flow (dev server + curl, against live `vumiszpfiftmvyrfyixf`) revealed that
+the SELECT issue was only the first of four blockers. All four are now fixed (commit `2be3ce3`,
+verified locally: `/join/{seed-token}` → anon sign-in → `/t/{id}/docs` HTTP 200):
 
-To close UAT Gap 2 (Test 5) on the live app, the function must exist in production. Apply it by **one** of:
-- Supabase Dashboard → SQL Editor → paste the contents of `supabase/migrations/20260530000005_invite_token_lookup_fn.sql` and run; **or**
-- `supabase db push` once the CLI is installed and the project is linked.
+1. **Trips SELECT (RPC)** — the original fix. `get_trip_id_by_invite_token` SECURITY DEFINER RPC. ✅ applied live via SQL Editor.
+2. **Zod v4 `.uuid()` rejected the seed token** — `22222222-…` is not RFC4122 (bad version/variant nibbles), so validation failed *before* `joinTrip` ran → `invalidJoinToken`. Loosened to a uuid-FORMAT regex (matches what the Postgres `uuid` column accepts). Real `gen_random_uuid()` tokens and the seed both pass.
+3. **`/join` was a Server Component** — `signInAnonymously()` must write the session cookie, forbidden during render → 500. Converted `page.tsx` → `route.ts` (Route Handler), mirroring `/auth/callback`.
+4. **`trip_members` INSERT ran unauthenticated** — after `signInAnonymously` the new session is only on the response cookie, so the next in-request supabase call (`@supabase/ssr` and an access-token client both) didn't carry it → `auth.uid()` null → `WITH CHECK (user_id = auth.uid())` violation, silently swallowed → user never became a member → `/t` bounced to `/`. Now the membership insert uses the **service-role client** (server-only key, server-supplied `userId`, trip resolved from a valid token) and a failed insert is fatal.
 
-Then re-run UAT Test 5: open `https://sharedtrip.vercel.app/join/22222222-2222-2222-2222-222222222222` in a fresh/private browser → expect anonymous sign-in landing on the Documentos tab, no "ese link de invitación está mal" error. Passing this unblocks Tests 6–11.
+## Deploy chain discovered (also fixed this session)
+
+The deployed app was running stale code/config. Resolved during this session:
+- 6 local commits were unpushed → `git push origin main`.
+- Vercel was NOT auto-deploying on push → deployed manually with `vercel --prod --force`.
+- Production env vars `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` were re-set from `.env.local` (they read back empty via `vercel env pull`).
+
+## ⚠️ Outstanding before Test 5 passes on the live device
+
+- **`get_trip_id_by_invite_token` migration:** ✅ applied live (SQL Editor, confirmed returning the seed trip id).
+- **Deploy the new code** (commit `2be3ce3`): `git push origin main` then `vercel --prod --force`.
+- **`SUPABASE_SECRET_KEY` in Vercel Production must be correct** — the membership insert now depends on it. Re-set it from `.env.local` (same as the other two) before/with the deploy, or the insert will fail in prod.
+- Then re-test on iPhone: `https://sharedtrip.vercel.app/join/22222222-2222-2222-2222-222222222222` → lands inside the trip (Documentos), no error. Unblocks Tests 6–11.
