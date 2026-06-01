@@ -19,12 +19,12 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 
 ### Authentication
 
-- [x] **AUTH-01**: Usuario puede registrarse / iniciar sesión vía magic link enviado a su email
-- [x] **AUTH-02**: Magic link email tiene subject único por request para evitar Gmail threading / clipping
-- [x] **AUTH-03**: Sesión persiste entre refrescos del navegador y reinicios del dispositivo
+- [ ] **AUTH-01**: Usuario puede iniciar sesión vía email (magic link / OTP) — **diferido a Fase 6** (re-scope 2026-06-01: v1 entra por código de invitación anónimo; email requiere dominio verificado)
+- [ ] **AUTH-02**: Email de login tiene subject único por request para evitar Gmail threading / clipping — **diferido a Fase 6**
+- [x] **AUTH-03**: Sesión persiste entre refrescos del navegador y reinicios del dispositivo (aplica a la sesión anónima)
 - [x] **AUTH-04**: Usuario puede cerrar sesión desde cualquier pantalla
-- [x] **AUTH-05**: Invitado puede unirse a un trip vía anonymous session (Supabase `signInAnonymously`) sin email
-- [x] **AUTH-06**: Invitado anónimo puede upgrade a cuenta real (`updateUser({ email })`) conservando membresía a sus trips
+- [x] **AUTH-05**: Invitado puede unirse a un trip sin email vía anonymous session — re-scope: entrada por **código de invitación tecleado** (no link)
+- [ ] **AUTH-06**: Invitado anónimo puede upgrade a cuenta real conservando membresía — **diferido a Fase 6** (recuperación de cuenta vía email)
 
 ### Trip Management
 
@@ -135,12 +135,12 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | INFRA-05 | Phase 1: Foundation + Auth | Complete |
 | INFRA-06 | Phase 1: Foundation + Auth | Complete |
 | INFRA-07 | Phase 1: Foundation + Auth | Complete |
-| AUTH-01 | Phase 1: Foundation + Auth | Complete |
-| AUTH-02 | Phase 1: Foundation + Auth | Complete |
+| AUTH-01 | Phase 6: Cuentas y Email | Deferred |
+| AUTH-02 | Phase 6: Cuentas y Email | Deferred |
 | AUTH-03 | Phase 1: Foundation + Auth | Complete |
 | AUTH-04 | Phase 1: Foundation + Auth | Complete |
 | AUTH-05 | Phase 1: Foundation + Auth | Complete |
-| AUTH-06 | Phase 1: Foundation + Auth | Complete |
+| AUTH-06 | Phase 6: Cuentas y Email | Deferred |
 | UI-01 | Phase 1: Foundation + Auth | Complete |
 | UI-02 | Phase 1: Foundation + Auth | Complete |
 | UI-03 | Phase 1: Foundation + Auth | Complete |

@@ -2,56 +2,58 @@
 
 **Milestone:** v1 — Functional before the next real trip
 **Deadline:** < 1 month from 2026-05-29
-**Granularity:** Coarse (5 phases — dictated by hard dependency chain)
-**Coverage:** 46/46 v1 requirements mapped
+**Granularity:** Coarse (6 phases — 5 v1-core + 1 deferred email/accounts phase)
+**Coverage:** 48/48 v1 requirements mapped (AUTH-01/02/06 deferred to Phase 6)
 
 ---
 
 ## Phases
 
-- [ ] **Phase 1: Foundation + Auth** — Deployed shell, magic link + anonymous join working, RLS locked down, keep-alive active, i18n dictionary in place — gap closure in progress (2 blocker UAT gaps, plans 06-07)
-- [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite link, join as member, view/manage member list, edit/archive trip
+- [x] **Phase 1: Foundation + Auth** — Deployed shell, anonymous join verified on device, RLS locked down, keep-alive active, i18n dictionary in place. **Re-scoped 2026-06-01:** entry moves from magic-link to a typed invite code; magic-link/email deferred to Phase 6 (re-scope implementation pending — see `.planning/todos/pending/rescope-phase-01-invite-code.md`) (completed 2026-06-01)
+- [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite code, join as member, view/manage member list, edit/archive trip
 - [ ] **Phase 3: Document Vault + PWA Offline** — Upload, view, offline cache, QR fullscreen, install prompt — the core value ships here
 - [ ] **Phase 4: Itinerary + Realtime** — Collaborative chronological timeline with live updates, doc-to-event linking
 - [ ] **Phase 5: Polish + Real-device QA** — iOS Safari hardening, performance, UI completeness before departure
+- [ ] **Phase 6: Cuentas y Email (diferido)** — Magic-link / OTP login, account recovery for anonymous users, and invites to arbitrary inboxes — deferred out of v1 core; needs a verified email domain
 
 ---
 
 ## Phase Details
 
 ### Phase 1: Foundation + Auth
-**Goal**: Any user — including an anonymous friend — can open the app on a real iPhone, join via invite link, and hold an authenticated session that persists across browser restarts.
+**Goal**: Any user — including a friend with no account — can open the app on a real iPhone, join a trip by typing a short invite code (e.g. `MARR-4F9K`), set a display name, and hold an anonymous session that persists across browser restarts.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
-**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, UI-01, UI-02, UI-03
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06, INFRA-07, AUTH-03, AUTH-04, AUTH-05, UI-01, UI-02, UI-03
 **Success Criteria** (what must be TRUE):
   1. Developer deploys to Vercel and the app loads on a real iPhone via HTTPS with a valid domain
-  2. User requests a magic link, email arrives with a unique subject (timestamp in subject line), and clicking it establishes a persistent session that survives browser restart
-  3. A second person opens an invite URL, gets an anonymous Supabase session, and sees themselves as a member — no email required
-  4. An anonymous user upgrades to a real account by adding their email without losing trip membership
-  5. A GitHub Actions cron pings Supabase every 3 days; all UI strings are served from `es.ts` with no hardcoded English visible
-**Plans**: 7 plans (5 original + 2 gap closure from UAT)
+  2. A person opens the app, types a short invite code (no email, no login), gets an anonymous Supabase session, sees themselves as a member, and sets a display name
+  3. The anonymous session persists across browser restarts (membership preserved); the user can sign out from any screen
+  4. A GitHub Actions cron pings Supabase every 3 days; all UI strings are served from `es.ts` with no hardcoded English visible
+
+> **Re-scope note (2026-06-01):** magic-link/email entry (AUTH-01, AUTH-02) and anonymous→account email upgrade (AUTH-06) were moved to **Phase 6**. Original criterion "request a magic link …" and "upgrade by adding email …" are deferred. Entry is now a typed invite code (anonymous). The originally-built magic-link code (plan 01-03, parts of 01-05) is superseded by the re-scope — see `.planning/todos/pending/rescope-phase-01-invite-code.md` and `invite-code-schema.md`.
+**Plans**: 7 plans built (5 original + 2 gap closure). Re-scope to invite-code entry pending (new plans).
 Plans:
 - [x] 01-01-PLAN.md — Scaffold Next.js 16 + Tailwind v4 + shadcn + Tropical Sunset palette + welcome slice + Vercel deploy
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
 - [x] 01-03-PLAN.md — Magic link auth vertical slice (@supabase/ssr factories + middleware + signInWithOtp Server Action + /auth/callback + Resend SMTP)
 - [x] 01-04-PLAN.md — Trip shell (bottom tab bar + top header + trip switcher) + Perfil tab (display name editor + sign-out) + PWA manifest + avatar generator
 - [x] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
-- [ ] 01-06-PLAN.md — Gap closure (UAT Test 5): SECURITY DEFINER get_trip_id_by_invite_token fn + joinTrip RPC — fixes anonymous-join RLS chicken-and-egg
-- [ ] 01-07-PLAN.md — Gap closure (UAT Test 3): enable live Resend SMTP + verified sender + raised email rate limit — fixes magic-link 429
+- [x] 01-06-PLAN.md — Gap closure (UAT Test 5): SECURITY DEFINER get_trip_id_by_invite_token fn + joinTrip RPC — fixes anonymous-join RLS chicken-and-egg
+- [x] 01-07-PLAN.md — Gap closure (UAT Test 3): enable live Resend SMTP + verified sender + raised email rate limit — fixes magic-link 429
 
 **UI hint**: yes
 
 ---
 
 ### Phase 2: Trip + Member Management
-**Goal**: Authenticated users can create a trip, share an invite link, and manage the member list — the container that all content will live in.
+**Goal**: Users can create a trip (anonymously), share its invite code, and manage the member list — the container that all content will live in. Trip creation generates the hybrid `invite_code` (see `.planning/todos/pending/invite-code-schema.md`).
 **Mode:** mvp
 **Depends on**: Phase 1
 **Requirements**: TRIP-01, TRIP-02, TRIP-03, TRIP-04, TRIP-05, TRIP-06, TRIP-07, TRIP-08, TRIP-09, UI-05
 **Success Criteria** (what must be TRUE):
-  1. User creates a trip with name, start/end dates, and optional description; trip appears in their trip list immediately
-  2. Creator copies a shareable invite link; any person with the link joins the trip (after auth or anonymous join from Phase 1)
+  1. User creates a trip with name, start/end dates, and optional description; trip appears in their trip list immediately with a generated invite code
+  2. Creator shares the trip's invite code; any person who types it joins the trip (anonymous join from Phase 1)
   3. All members can see the member list with names and avatars/initials; creator can remove members and members can leave
   4. Creator edits trip name, dates, or description and changes are reflected instantly for all members
   5. Trip dates display in Spanish day-month format (`Intl.DateTimeFormat('es-MX')`) consistently across all views
@@ -105,15 +107,32 @@ Plans:
 
 ---
 
+### Phase 6: Cuentas y Email (diferido)
+**Goal**: An anonymous user can attach an email to recover/persist their account across devices, and trip invites can be sent to arbitrary inboxes — restoring the magic-link/OTP capability that was deferred out of v1 core.
+**Mode:** mvp
+**Depends on**: Phase 1 (auth foundation) — independent of Phases 2–5; sequenced last by priority
+**Requirements**: AUTH-01, AUTH-02, AUTH-06
+**Trigger**: After v1 core ships, OR when a custom sending domain is verified in Resend (the hard blocker — `onboarding@resend.dev` only delivers to the account owner). See seed `.planning/seeds/email-account-recovery.md`.
+**Success Criteria** (what must be TRUE):
+  1. A user can request a sign-in email and authenticate via a **6-digit OTP code** (scanner-proof — survives Microsoft Safe Links, which consumes one-time link tokens); the email subject is unique per request
+  2. An existing anonymous user attaches their email and keeps all trip memberships (account recovery / cross-device persistence)
+  3. With a verified custom domain, invite/auth emails are delivered to arbitrary (non-owner) inboxes
+**Design constraints learned in v1** (see seed + `01-07-SUMMARY.md`): prefer OTP-code entry over click-the-link (Safe Links pre-consume single-use links); the PKCE `/auth/callback` cookie flow is fragile cross-browser on mobile.
+**Plans**: TBD (run `/gsd-plan-phase 6`)
+**UI hint**: yes
+
+---
+
 ## Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 5/7 | Gap closure | - |
+| 1. Foundation + Auth | 7/7 | Complete   | 2026-06-01 |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |
+| 6. Cuentas y Email (diferido) | 0/? | Deferred | - |
 
 ---
 
@@ -128,12 +147,12 @@ Plans:
 | INFRA-05 | Phase 1 |
 | INFRA-06 | Phase 1 |
 | INFRA-07 | Phase 1 |
-| AUTH-01 | Phase 1 |
-| AUTH-02 | Phase 1 |
+| AUTH-01 | Phase 6 (deferred) |
+| AUTH-02 | Phase 6 (deferred) |
 | AUTH-03 | Phase 1 |
 | AUTH-04 | Phase 1 |
 | AUTH-05 | Phase 1 |
-| AUTH-06 | Phase 1 |
+| AUTH-06 | Phase 6 (deferred) |
 | UI-01 | Phase 1 |
 | UI-02 | Phase 1 |
 | UI-03 | Phase 1 |
@@ -177,6 +196,8 @@ Plans:
 > Note: UI-01..05 are cross-cutting. Each is assigned to the phase where it first ships in a user-visible way. All subsequent phases inherit those conventions — they are not re-implemented, just applied.
 
 > Phase 5 carries no new requirements — it is a hardening and QA gate that verifies the observable outcomes of Phases 1–4 survive real-world conditions before the trip departs.
+
+> Phase 6 (email/accounts) is deferred OUT of the v1-core dependency chain. Its requirements (AUTH-01, AUTH-02, AUTH-06) were originally in Phase 1 and are reassigned here; v1 ships without them.
 
 ---
 

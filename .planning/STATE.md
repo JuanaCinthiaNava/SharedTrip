@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 01
-current_plan: 5
+current_plan: 1
 status: human_needed
-last_updated: "2026-05-30T00:59:04.408Z"
+last_updated: "2026-06-01T19:26:12.685Z"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 5
+  total_plans: 7
   completed_plans: 5
-  percent: 20
+  percent: 0
 ---
 
 # Project State: SharedTrip
@@ -27,16 +27,16 @@ progress:
 
 **Stack:** Next.js 16 + TypeScript + Tailwind v4 + shadcn/ui + Supabase (Auth + PostgreSQL + Storage + Realtime) + Serwist + Dexie.js + Vercel
 
-**Current focus:** Phase 01 — foundation-auth (VERIFICATION: human_needed — automated checks passed, awaiting real-device tests)
+**Current focus:** Phase 01 — foundation-auth
 
 ---
 
 ## Current Position
 
-Phase: 01 (foundation-auth) — HUMAN_NEEDED (all code verified; awaiting real-device + dashboard confirmation)
-Plan: 5 of 5
+Phase: 01 (foundation-auth) — EXECUTING
+Plan: 1 of 7
 **Current phase:** 01
-**Current plan:** 5
+**Current plan:** 1
 **Status:** human_needed
 **Progress:** [██████████] 100% (Phase 1 plans complete — automated verification passed, human UAT pending)
 
@@ -119,6 +119,11 @@ Plan: 5 of 5
 | Simple magic link (signInWithOtp) approach | No admin.generateLink() + Resend SDK needed — subject uniqueness via {{ .Token }} in Supabase template |
 | getUser() only in middleware, never getSession() | getUser() revalidates JWT server-to-server; getSession() reads stale local cookie — security anti-pattern |
 | T-03-06 open-redirect guard in /auth/callback | Validates ?next param starts with / and not // before redirect |
+| **Entry = typed invite code (anonymous), not magic-link** (2026-06-01) | v1 entry is a short hybrid code (`MARR-4F9K`) typed by the user → anonymous join → set name. Magic-link/email dropped from v1: no domain (Resend `onboarding@resend.dev` only reaches the account owner) + Microsoft Safe Links consumes one-time links. Email/recovery → Phase 6. See `.planning/notes/entry-model-invite-code.md` |
+
+### Roadmap Evolution
+
+- **2026-06-01 — Phase 6 added (Cuentas y Email, deferred):** magic-link/email entry re-scoped out of v1. AUTH-01, AUTH-02, AUTH-06 moved Phase 1 → Phase 6. Phase 1 entry redefined as typed invite-code anonymous join. Phase 6 triggers post-v1 or when a Resend domain is verified. Re-scope implementation pending — see `.planning/todos/pending/rescope-phase-01-invite-code.md` + `invite-code-schema.md`.
 
 ### Critical Pitfalls (address in stated phases)
 
