@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [x] **Phase 1: Foundation + Auth** — Deployed shell, magic link + anonymous join working, RLS locked down, keep-alive active, i18n dictionary in place (completed 2026-05-30)
+- [ ] **Phase 1: Foundation + Auth** — Deployed shell, magic link + anonymous join working, RLS locked down, keep-alive active, i18n dictionary in place — gap closure in progress (2 blocker UAT gaps, plans 06-07)
 - [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite link, join as member, view/manage member list, edit/archive trip
 - [ ] **Phase 3: Document Vault + PWA Offline** — Upload, view, offline cache, QR fullscreen, install prompt — the core value ships here
 - [ ] **Phase 4: Itinerary + Realtime** — Collaborative chronological timeline with live updates, doc-to-event linking
@@ -30,13 +30,15 @@
   3. A second person opens an invite URL, gets an anonymous Supabase session, and sees themselves as a member — no email required
   4. An anonymous user upgrades to a real account by adding their email without losing trip membership
   5. A GitHub Actions cron pings Supabase every 3 days; all UI strings are served from `es.ts` with no hardcoded English visible
-**Plans**: 5 plans
+**Plans**: 7 plans (5 original + 2 gap closure from UAT)
 Plans:
 - [x] 01-01-PLAN.md — Scaffold Next.js 16 + Tailwind v4 + shadcn + Tropical Sunset palette + welcome slice + Vercel deploy
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
 - [x] 01-03-PLAN.md — Magic link auth vertical slice (@supabase/ssr factories + middleware + signInWithOtp Server Action + /auth/callback + Resend SMTP)
 - [x] 01-04-PLAN.md — Trip shell (bottom tab bar + top header + trip switcher) + Perfil tab (display name editor + sign-out) + PWA manifest + avatar generator
 - [x] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
+- [ ] 01-06-PLAN.md — Gap closure (UAT Test 5): SECURITY DEFINER get_trip_id_by_invite_token fn + joinTrip RPC — fixes anonymous-join RLS chicken-and-egg
+- [ ] 01-07-PLAN.md — Gap closure (UAT Test 3): enable live Resend SMTP + verified sender + raised email rate limit — fixes magic-link 429
 
 **UI hint**: yes
 
@@ -107,7 +109,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 5/5 | Complete   | 2026-05-30 |
+| 1. Foundation + Auth | 5/7 | Gap closure | - |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
