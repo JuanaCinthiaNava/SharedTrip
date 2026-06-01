@@ -85,9 +85,12 @@ The deployed app was running stale code/config. Resolved during this session:
 - Vercel was NOT auto-deploying on push → deployed manually with `vercel --prod --force`.
 - Production env vars `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` were re-set from `.env.local` (they read back empty via `vercel env pull`).
 
-## ⚠️ Outstanding before Test 5 passes on the live device
+## ✅ Test 5 — CLOSED and verified on device (2026-06-01)
 
-- **`get_trip_id_by_invite_token` migration:** ✅ applied live (SQL Editor, confirmed returning the seed trip id).
-- **Deploy the new code** (commit `2be3ce3`): `git push origin main` then `vercel --prod --force`.
-- **`SUPABASE_SECRET_KEY` in Vercel Production must be correct** — the membership insert now depends on it. Re-set it from `.env.local` (same as the other two) before/with the deploy, or the insert will fail in prod.
-- Then re-test on iPhone: `https://sharedtrip.vercel.app/join/22222222-2222-2222-2222-222222222222` → lands inside the trip (Documentos), no error. Unblocks Tests 6–11.
+All four layers fixed, deployed to production, and confirmed:
+- `get_trip_id_by_invite_token` migration applied live (SQL Editor).
+- Code deployed (commits `2be3ce3` + `5e89d3f`) via `vercel --prod --force`.
+- `SUPABASE_SECRET_KEY` re-set in Vercel Production (membership insert depends on it).
+- **Verified via curl in production** (`/join/{seed-token}` → `/t/{id}/docs` HTTP 200) **and confirmed working on a real iPhone by the user.**
+
+Gap 2 closed → Tests 6–11 unblocked.
