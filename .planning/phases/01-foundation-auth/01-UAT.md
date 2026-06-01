@@ -1,9 +1,9 @@
 ---
-status: partial
+status: diagnosed
 phase: 01-foundation-auth
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md, 01-04-SUMMARY.md, 01-05-SUMMARY.md]
 started: 2026-06-01T18:51:05Z
-updated: 2026-06-01T19:02:00Z
+updated: 2026-06-01T19:08:00Z
 ---
 
 ## Current Test
@@ -95,17 +95,36 @@ blocked: 7
   reason: "User reported: me lanza un error de no pudimos enviar el email"
   severity: blocker
   test: 3
-  root_cause: ""     # Filled by diagnosis
-  artifacts: []      # Filled by diagnosis
-  missing: []        # Filled by diagnosis
-  debug_session: ""  # Filled by diagnosis
+  root_cause: "Live Supabase auth returns HTTP 429 over_email_send_rate_limit on signInWithOtp. Custom Resend SMTP is NOT actually active on the live project (the [auth.email.smtp] config documented in 01-03-SUMMARY is not saved/enabled), so Supabase falls back to its built-in mailer with a ~2-4 emails/hour project-wide cap, which is exhausted. App code (src/actions/auth.ts) is correct — it faithfully surfaces the 429 as es.errors.sendLinkFailed. Fault is in live Supabase config, not the repo. Secondary latent issue: sender onboarding@resend.dev only delivers to the Resend account owner, which will surface as a 500 once the rate limit clears."
+  artifacts:
+    - path: "Live Supabase project vumiszpfiftmvyrfyixf (Auth → SMTP Settings + [auth.rate_limit].email_sent)"
+      issue: "Custom Resend SMTP not enabled/saved; built-in mailer hourly cap exhausted (HTTP 429 over_email_send_rate_limit captured on POST /auth/v1/otp)"
+    - path: "supabase/config.toml"
+      issue: "[auth.email.smtp] block commented out; documents SMTP→rate-limit dependency"
+    - path: "src/actions/auth.ts"
+      issue: "No bug — correctly passes through the 429 error message"
+  missing:
+    - "Enable/save custom Resend SMTP on the live Supabase project (Auth → SMTP Settings)"
+    - "Move sender off shared onboarding@resend.dev to a verified custom domain so the iPhone test address (non-owner) can receive mail"
+    - "Raise [auth.rate_limit].email_sent once SMTP is confirmed enabled"
+    - "Re-run diagnostic POST /auth/v1/otp with a fresh email — expect HTTP 200"
+  debug_session: .planning/debug/magic-link-send-fails.md
 
 - truth: "Opening /join/{seed-invite-token} signs the user in anonymously and lands them inside the trip shell (Documentos tab) with no email/login prompt"
   status: failed
   reason: "User reported: me dice que ese link de invitacion esta mal (invite token rejected as invalid)"
   severity: blocker
   test: 5
-  root_cause: ""     # Filled by diagnosis
-  artifacts: []      # Filled by diagnosis
-  missing: []        # Filled by diagnosis
-  debug_session: ""  # Filled by diagnosis
+  root_cause: "RLS chicken-and-egg. joinTrip() (src/actions/members.ts) looks up the trip by invite_token with .single() BEFORE inserting the trip_members row, and that query runs as the freshly-created anonymous user under RLS. The only trips SELECT policy gates on is_trip_member(id), so a non-member anon user sees 0 rows → PGRST116 → mapped to es.errors.invalidJoinToken, even though token + trip are valid. Confirmed by direct observation: service-role query returns the seed row; identical query as an anon user (after successful signInAnonymously) returns []. The join can NEVER succeed because there is no RLS path to resolve a trip by invite_token before membership exists."
+  artifacts:
+    - path: "src/actions/members.ts"
+      issue: "joinTrip() queries trips by invite_token under RLS before membership exists; maps PGRST116 to invalidJoinToken"
+    - path: "supabase/migrations/20260530000001_initial_schema.sql (lines ~157-160)"
+      issue: "Sole trips SELECT policy USING (is_trip_member(id)); no policy/path allows lookup by invite_token"
+    - path: "src/app/join/[token]/page.tsx"
+      issue: "Surfaces the error as redirect to /?error= (no bug — downstream of the failed lookup)"
+  missing:
+    - "Add a SECURITY DEFINER Postgres function get_trip_id_by_invite_token(token uuid) RETURNS uuid, SET search_path = public, that resolves trip id for a valid token bypassing the membership-gated RLS"
+    - "Change joinTrip() to call supabase.rpc('get_trip_id_by_invite_token', { token }) instead of the direct trips.select().single()"
+    - "New migration adding the function; verify trip_members upsert + /t/[tripId] shell load work for the now-member anon user"
+  debug_session: .planning/debug/anon-join-invalid-token.md
