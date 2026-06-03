@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server'
 import { joinTripByCode } from '@/actions/members'
 import { es } from '@/i18n/es'
+import { isWellFormedInviteCode } from '@/lib/utils/invite-code'
 
 export async function GET(
   request: Request,
@@ -19,9 +20,17 @@ export async function GET(
   const { code } = await params
   const decoded = decodeURIComponent(code).trim()
 
-  // Lightweight guard: reject obviously malformed or oversized inputs before hitting the DB.
-  // The DB resolver handles unknown well-formed codes (returns NULL → invalidJoinToken).
+  // Guard 1: reject obviously malformed or oversized inputs before any auth call.
   if (!decoded || decoded.length > 32) {
+    return NextResponse.redirect(
+      `${origin}/?error=${encodeURIComponent(es.errors.invalidJoinToken)}`
+    )
+  }
+
+  // Guard 2: validate structural format via CODE_RE before signInAnonymously() is called.
+  // Without this, a malformed-but-short code (e.g. /join/hello) would create a spurious
+  // anonymous user before the DB resolver returns NULL. Reuses the shared utility.
+  if (!isWellFormedInviteCode(decoded)) {
     return NextResponse.redirect(
       `${origin}/?error=${encodeURIComponent(es.errors.invalidJoinToken)}`
     )
