@@ -209,6 +209,7 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          invite_code: string
           invite_token: string
           name: string
           start_date: string | null
@@ -219,6 +220,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          invite_code?: string
           invite_token?: string
           name: string
           start_date?: string | null
@@ -229,6 +231,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          invite_code?: string
           invite_token?: string
           name?: string
           start_date?: string | null
@@ -242,6 +245,7 @@ export type Database = {
     Functions: {
       is_trip_member: { Args: { check_trip_id: string }; Returns: boolean }
       get_trip_id_by_invite_token: { Args: { lookup_token: string }; Returns: string }
+      get_trip_id_by_invite_code: { Args: { lookup_code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
