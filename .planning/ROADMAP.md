@@ -41,7 +41,7 @@ Plans:
 - [x] 01-01-PLAN.md — Scaffold Next.js 16 + Tailwind v4 + shadcn + Tropical Sunset palette + welcome slice + Vercel deploy
 - [x] 01-06-PLAN.md — Gap closure (UAT Test 5): SECURITY DEFINER get_trip_id_by_invite_token fn + joinTrip RPC — fixes anonymous-join RLS chicken-and-egg
 - [x] 01-07-PLAN.md — Gap closure (UAT Test 3): enable live Resend SMTP + verified sender + raised email rate limit — fixes magic-link 429
-- [ ] 01-08-PLAN.md — Re-scope data layer: add trips.invite_code (NOT NULL UNIQUE) + get_trip_id_by_invite_code SECURITY DEFINER resolver + seed code TEST-AB12 + types regen (AUTH-05)
+- [x] 01-08-PLAN.md — Re-scope data layer: add trips.invite_code (NOT NULL UNIQUE) + get_trip_id_by_invite_code SECURITY DEFINER resolver + seed code TEST-AB12 + types regen (AUTH-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 7/9 | Re-scope planned (01-08, 01-09 pending) | 2026-06-01 |
+| 1. Foundation + Auth | 8/9 | 01-08 complete; 01-09 pending | 2026-06-01 |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |

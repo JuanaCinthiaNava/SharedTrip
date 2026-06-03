@@ -5,7 +5,7 @@ milestone_name: milestone
 current_phase: 01
 current_plan: 1
 status: executing
-last_updated: "2026-06-03T01:24:13.020Z"
+last_updated: "2026-06-03T00:00:00Z"
 progress:
   total_phases: 6
   completed_phases: 0
@@ -166,13 +166,13 @@ Plan: 1 of 9
 
 ### Blockers
 
-- **01-08 checkpoint (human-action):** Migration 20260530000006_invite_code.sql committed but NOT yet applied to live Supabase. Must apply before Plan 01-09 entry UI can resolve invite codes. See checkpoint state in 01-08 execution.
+None active. (01-08 human-action checkpoint cleared 2026-06-03: migration 20260530000006_invite_code.sql applied to live Supabase via Dashboard SQL Editor; all 4 verification queries confirmed.)
 
 ---
 
 ## Session Continuity
 
-**To resume:** Phase 1 automated verification passed (14/16). Complete human UAT items listed above (see `.planning/phases/01-foundation-auth/01-VERIFICATION.md` Human Verification section). After all items pass, update ROADMAP.md Phase 1 status to `Complete` and run `/gsd:execute-phase 02` to start Phase 2.
+**To resume:** Plan 01-08 complete (live migration confirmed). Execute Plan 01-09 next: typed invite-code entry UI + joinTripByCode action + remove magic-link routes. After 01-09, Phase 1 re-scope is fully wired end-to-end and UAT can proceed.
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
