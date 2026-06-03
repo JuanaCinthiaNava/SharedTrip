@@ -32,7 +32,7 @@
   4. A GitHub Actions cron pings Supabase every 3 days; all UI strings are served from `es.ts` with no hardcoded English visible
 
 > **Re-scope note (2026-06-01):** magic-link/email entry (AUTH-01, AUTH-02) and anonymous→account email upgrade (AUTH-06) were moved to **Phase 6**. Original criterion "request a magic link …" and "upgrade by adding email …" are deferred. Entry is now a typed invite code (anonymous). The originally-built magic-link code (plan 01-03, parts of 01-05) is superseded by the re-scope — see `.planning/todos/pending/rescope-phase-01-invite-code.md` and `invite-code-schema.md`.
-**Plans**: 7 plans built (5 original + 2 gap closure). Re-scope to invite-code entry pending (new plans).
+**Plans**: 9 plans built (5 original + 2 gap closure + 2 re-scope to invite-code entry).
 Plans:
 - [x] 01-01-PLAN.md — Scaffold Next.js 16 + Tailwind v4 + shadcn + Tropical Sunset palette + welcome slice + Vercel deploy
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
@@ -41,6 +41,8 @@ Plans:
 - [x] 01-05-PLAN.md — Anonymous join + upgrade vertical slice (/join/[token] + signInAnonymously + Sin cuenta pill + dismissible banner + updateUser({ email }))
 - [x] 01-06-PLAN.md — Gap closure (UAT Test 5): SECURITY DEFINER get_trip_id_by_invite_token fn + joinTrip RPC — fixes anonymous-join RLS chicken-and-egg
 - [x] 01-07-PLAN.md — Gap closure (UAT Test 3): enable live Resend SMTP + verified sender + raised email rate limit — fixes magic-link 429
+- [ ] 01-08-PLAN.md — Re-scope data layer: add trips.invite_code (NOT NULL UNIQUE) + get_trip_id_by_invite_code SECURITY DEFINER resolver + seed code TEST-AB12 + types regen (AUTH-05)
+- [ ] 01-09-PLAN.md — Re-scope entry slice: typed invite-code welcome form + joinTripByCode + /join/[code] route; remove magic-link (sendMagicLink, /auth/callback, /auth/check-email, MagicLinkForm); defer D-12 email banner (AUTH-05)
 
 **UI hint**: yes
 
@@ -127,7 +129,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 7/7 | Complete   | 2026-06-01 |
+| 1. Foundation + Auth | 7/9 | Re-scope planned (01-08, 01-09 pending) | 2026-06-01 |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
