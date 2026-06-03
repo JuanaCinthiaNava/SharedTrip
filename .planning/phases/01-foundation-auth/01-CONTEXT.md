@@ -1,7 +1,26 @@
 # Phase 1: Foundation + Auth - Context
 
 **Gathered:** 2026-05-29
-**Status:** Ready for planning
+**Status:** Re-scoped 2026-06-01 (entry model: magic-link → typed invite code)
+
+> ### ⚠️ RE-SCOPE 2026-06-01 — read before the decisions below
+> The entry model pivoted from magic-link to a **typed invite code** (anonymous join). Source of truth: `.planning/notes/entry-model-invite-code.md` + `.planning/todos/pending/{rescope-phase-01-invite-code,invite-code-schema}.md`. Delta planned in **01-08-PLAN.md** (schema/data) + **01-09-PLAN.md** (entry UI + magic-link removal).
+>
+> **Superseded → deferred to Phase 6 (Cuentas y Email):**
+> - **D-01, D-02, D-03, D-04** (Resend SMTP / magic-link email experience) — magic-link removed from v1.
+> - **D-13** (email upgrade via `updateUser({ email })`) — account recovery moves to Phase 6.
+>
+> **Repointed:**
+> - **D-10** — join no longer resolves a uuid `/join/{token}`; it resolves a typed `invite_code` (`/join/{code}` fallback route). The anon sign-in + service-role membership insert (plan 01-06) is unchanged — only the resolution input changes uuid → code.
+> - **D-12** — the "Sin email guardado" upgrade banner is **hidden in v1** (its "Agregar email" CTA depends on Phase 6 email). Files retained on disk, unwired.
+>
+> **New v1 entry decisions (replace D-01..D-04 as the entry path):**
+> - **D-E1:** v1 entry = user **types a short hybrid invite code** (e.g. `MARR-4F9K`) → anonymous join → set display name. No magic link, no email, no login.
+> - **D-E2:** Code format = name-prefix (first ~4 letters of trip name, uppercased, non-alpha stripped) + `-` + ~4 random chars from an **unambiguous alphabet** (exclude `0/O`, `1/I/L`). Stored normalized (uppercase), treated case-insensitively on entry, unique across trips.
+> - **D-E3:** Resolution via SECURITY DEFINER `get_trip_id_by_invite_code(text)` (mirrors the 01-06 token resolver: `SET search_path = public`, returns only a uuid). Seed trip code = `TEST-AB12`.
+> - **D-11 stays:** the "Sin cuenta" pill remains as a **static** anonymous indicator (tap made inert in v1 — re-wired in Phase 6).
+>
+> **Still valid as-built (shipped by 01-01..01-07):** D-05..D-09 (visual identity, app shell, tab bar, trip switcher), D-14..D-17 (profile/identity/auto-name/avatar model).
 
 <domain>
 ## Phase Boundary
