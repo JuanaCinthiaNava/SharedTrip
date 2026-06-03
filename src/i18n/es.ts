@@ -47,7 +47,7 @@ export const es = {
     invalidName: 'El nombre debe tener entre 1 y 60 caracteres.',
     signOutCta: 'Cerrar sesión',
     signOutDialogHeading: '¿Cerrar sesión?',
-    signOutDialogBody: 'Tendrás que volver a ingresar con tu correo.',
+    signOutDialogBody: 'Tendrás que volver a ingresar con tu código de invitación.',
     signOutDialogConfirm: 'Sí, cerrar sesión',
     signOutDialogCancel: 'Cancelar',
   },
