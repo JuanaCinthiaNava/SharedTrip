@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [x] **Phase 1: Foundation + Auth** — Deployed shell, anonymous join verified on device, RLS locked down, keep-alive active, i18n dictionary in place. **Re-scoped 2026-06-01:** entry moves from magic-link to a typed invite code; magic-link/email deferred to Phase 6 (re-scope implementation pending — see `.planning/todos/pending/rescope-phase-01-invite-code.md`) (completed 2026-06-01)
+- [x] **Phase 1: Foundation + Auth** — Deployed shell, typed-invite-code anonymous join verified on a real iPhone, RLS locked down, keep-alive active, i18n dictionary in place. **Re-scoped 2026-06-01** (magic-link → typed invite code; magic-link/email deferred to Phase 6) and **re-scope shipped + verified 2026-06-02** (plans 01-08/01-09; 11/11 device UAT passed — see `01-HUMAN-UAT.md`). (completed 2026-06-02)
 - [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite code, join as member, view/manage member list, edit/archive trip
 - [ ] **Phase 3: Document Vault + PWA Offline** — Upload, view, offline cache, QR fullscreen, install prompt — the core value ships here
 - [ ] **Phase 4: Itinerary + Realtime** — Collaborative chronological timeline with live updates, doc-to-event linking
