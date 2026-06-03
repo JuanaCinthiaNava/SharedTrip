@@ -87,7 +87,7 @@ export async function joinTripByCode(
     .from('trip_members')
     .upsert(
       { trip_id: resolvedTripId, user_id: userId, role: 'member' },
-      { onConflict: 'trip_id,user_id' }
+      { onConflict: 'trip_id,user_id', ignoreDuplicates: true }
     )
 
   if (upsertErr) {
