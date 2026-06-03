@@ -7,7 +7,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
-import { AnonymousBanner } from '@/components/common/AnonymousBanner'
+// The email-upgrade banner is intentionally not imported — deferred to Phase 6 (D-12).
+// The banner file is left on disk for Phase 6 reuse; not rendered in v1.
 
 interface TripLayoutProps {
   children: React.ReactNode
@@ -67,8 +68,7 @@ export default async function TripLayout({ children, params }: TripLayoutProps) 
         isAnonymous={user.is_anonymous ?? false}
         trips={otherTrips}
       />
-      {/* Plan 05: AnonymousBanner shown below header when user is anonymous (D-12) */}
-      {user.is_anonymous && <AnonymousBanner />}
+      {/* D-12 email-upgrade banner deferred to Phase 6 — requires a verified domain. */}
       <main className="pt-4 pb-16">
         {children}
       </main>
