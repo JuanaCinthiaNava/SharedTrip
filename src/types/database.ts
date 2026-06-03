@@ -245,7 +245,10 @@ export type Database = {
     Functions: {
       is_trip_member: { Args: { check_trip_id: string }; Returns: boolean }
       get_trip_id_by_invite_token: { Args: { lookup_token: string }; Returns: string }
-      get_trip_id_by_invite_code: { Args: { lookup_code: string }; Returns: string }
+      // MANUAL OVERRIDE: SQL returns nullable uuid (NULL on no-match). Supabase CLI incorrectly
+      // infers non-nullable string. Re-running `supabase gen types typescript` will revert this —
+      // re-apply the `| null` manually after each type regeneration until CLI inference is fixed.
+      get_trip_id_by_invite_code: { Args: { lookup_code: string }; Returns: string | null }
     }
     Enums: {
       [_ in never]: never
