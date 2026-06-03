@@ -1,21 +1,21 @@
 'use client'
 
-// src/components/auth/MagicLinkForm.tsx
-// RHF + Zod email validation form. Calls the sendMagicLink server action on submit.
-// On success: navigates to /auth/check-email?email=...
-// On error: shows a Sonner toast with the Spanish error message.
-// All strings via es.* — zero hardcoded Spanish text.
+// src/components/auth/InviteCodeForm.tsx
+// RHF + Zod invite-code entry form on the welcome screen (Plan 09).
+// On submit: normalizes the code (trim + uppercase) and navigates to /join/{code},
+// which performs the anonymous sign-in + membership insert server-side.
+// Does NOT call joinTripByCode directly — the route handler must set the session cookie.
+// All strings via es.entry.* and es.errors.* — zero hardcoded Spanish text.
 
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
-import { sendMagicLink } from '@/actions/auth'
 import { es } from '@/i18n/es'
+import { CODE_RE } from '@/lib/utils/invite-code'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,36 +27,34 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
-// Zod schema for email validation — uses es.errors string for the error message
+// Zod schema — validates the hybrid code format case-insensitively after trim.
+// CODE_RE: /^[A-Za-z0-9]{2,8}-[A-Za-z0-9]{3,6}$/ — accepts TEST-AB12, marr-4f9k, etc.
+// Inline validation message shown under the field without a network round-trip.
 const schema = z.object({
-  email: z.string().email({ message: es.errors.sendLinkFailed }),
+  code: z
+    .string()
+    .trim()
+    .regex(CODE_RE, { message: es.entry.invalidFormat }),
 })
 
 type FormValues = z.infer<typeof schema>
 
-export function MagicLinkForm() {
+export function InviteCodeForm() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: '' },
+    defaultValues: { code: '' },
     // Validate on blur + submit (NOT keystroke) per UI-SPEC interaction contract
     mode: 'onBlur',
   })
 
   const onSubmit = (values: FormValues) => {
-    startTransition(async () => {
-      const { error } = await sendMagicLink(values.email)
-
-      if (error) {
-        // Show Spanish error toast — duration 6s per UI-SPEC error toast duration
-        toast.error(es.errors.sendLinkFailed, { duration: 6000 })
-        return
-      }
-
-      // Success: navigate to check-email confirmation screen
-      router.push(`/auth/check-email?email=${encodeURIComponent(values.email)}`)
+    // Normalize: trim + uppercase. The RPC also normalizes, but we send a clean value.
+    const normalized = values.code.trim().toUpperCase()
+    startTransition(() => {
+      router.push('/join/' + encodeURIComponent(normalized))
     })
   }
 
@@ -69,17 +67,20 @@ export function MagicLinkForm() {
       >
         <FormField
           control={form.control}
-          name="email"
+          name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{es.auth.emailLabel}</FormLabel>
+              <FormLabel>{es.entry.codeLabel}</FormLabel>
               <FormControl>
                 <Input
-                  type="email"
-                  autoComplete="email"
-                  inputMode="email"
-                  placeholder={es.auth.emailPlaceholder}
-                  aria-label={es.auth.emailLabel}
+                  type="text"
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode="text"
+                  placeholder={es.entry.codePlaceholder}
+                  aria-label={es.entry.codeLabel}
                   disabled={isPending}
                   {...field}
                 />
@@ -97,7 +98,7 @@ export function MagicLinkForm() {
           {isPending ? (
             <Loader2 className="animate-spin" aria-hidden="true" />
           ) : (
-            es.auth.sendLinkCta
+            es.entry.submitCta
           )}
         </Button>
       </form>
