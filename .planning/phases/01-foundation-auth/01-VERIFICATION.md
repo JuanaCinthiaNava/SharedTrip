@@ -1,39 +1,63 @@
 ---
 phase: 01-foundation-auth
-verified: 2026-05-30T01:00:00Z
+verified: 2026-06-03T20:00:00Z
 status: human_needed
-score: 14/16 must-haves verified
+score: 13/13 must-haves verified
 overrides_applied: 0
+re_verification:
+  previous_status: human_needed
+  previous_score: 14/16
+  gaps_closed:
+    - "Magic-link path removed (AUTH-01/02 deferred to Phase 6 per re-scope)"
+    - "Plan 08: trips.invite_code (NOT NULL UNIQUE) + get_trip_id_by_invite_code SECURITY DEFINER resolver added and applied LIVE (4/4 SQL verification queries confirmed)"
+    - "Plan 09: joinTripByCode server action, /join/[code] route handler, InviteCodeForm — full typed-code entry path implemented and wired"
+    - "All magic-link code deleted: sendMagicLink, MagicLinkForm.tsx, /auth/callback, /auth/check-email — no dangling imports"
+    - "D-12 email-upgrade banner unwired (AnonymousBanner removed from trip layout); D-11 SinCuentaPill made static non-interactive indicator"
+    - "50/50 tests pass; npm run build exits 0; tsc --noEmit exits 0"
+  gaps_remaining: []
+  regressions: []
 human_verification:
-  - test: "Real iPhone: magic link flow end-to-end — email arrives with unique subject, PKCE callback establishes persistent session across browser restart"
-    expected: "Email arrives within 30s from cristian@{domain}, subject contains 'Acceso a tu viaje · {token}', clicking link sets session cookie, force-quit + relaunch confirms session still valid"
-    why_human: "Requires Resend SMTP configured in Supabase dashboard and a real device to verify cookie persistence and the email template rendering"
-  - test: "Real iPhone: anonymous join flow — /join/22222222-2222-2222-2222-222222222222 lands in trip shell with no email prompt"
-    expected: "Fresh Safari, navigate to /join/{seed-token}, lands inside /t/11111111-.../docs within 2 seconds; SinCuentaPill (mango 'Sin cuenta') visible in header; AnonymousBanner with mango stripe visible below header"
-    why_human: "Requires Supabase Anonymous Sign-ins enabled in dashboard, live DB seed trip, and real device to observe the UX"
-  - test: "Supabase Anonymous Sign-ins enabled + OTP expiry set to 900s in dashboard"
-    expected: "Dashboard shows Anonymous Sign-ins: Enabled; Email OTP Expiration: 900"
-    why_human: "Cannot verify remote Supabase Auth config programmatically — requires dashboard inspection"
-  - test: "Gmail anti-threading: two magic link emails in rapid succession have different subjects"
-    expected: "Subject of email 1: 'Acceso a tu viaje · {token1}', Subject of email 2: 'Acceso a tu viaje · {token2}' — tokens differ, Gmail does not thread"
-    why_human: "Requires live email delivery via Resend SMTP; cannot be automated without a real email account"
-  - test: "Production manifest.webmanifest returns valid JSON after redeploy"
-    expected: "GET https://sharedtrip.vercel.app/manifest.webmanifest returns HTTP 200 with Content-Type: application/manifest+json; JSON contains name 'SharedTrip', lang 'es', display 'standalone', both icon references"
-    why_human: "The route exists in the local build and .next/server output (status 200, correct content-type) but production is serving a stale deployment that predates manifest.ts. A redeploy is required and must be confirmed."
-  - test: "GitHub Actions keep-alive smoke-test: manual workflow_dispatch returns success"
-    expected: "gh run view shows conclusion: success; curl returned HTTP 200 from Supabase REST endpoint"
-    why_human: "Cannot trigger or verify GitHub Actions run programmatically without GitHub token"
-  - test: "trip_members RLS: anonymous join actually inserts a row visible in Supabase dashboard"
-    expected: "After visiting /join/{seed-token}, Supabase Dashboard SQL: SELECT * FROM public.trip_members shows new row with anonymous user_id and role='member'"
-    why_human: "Requires a live anonymous sign-in against the real Supabase project to verify the DB mutation"
+  - test: "Deploy to production and verify code-entry welcome screen renders on real iPhone"
+    expected: "vercel --prod --force succeeds; https://sharedtrip.vercel.app/ shows the es.entry.heading ('Ingresa tu código de viaje') and an invite-CODE input (not email field) with 'Entrar al viaje' button"
+    why_human: "Production does not auto-deploy on push (see vercel-deploy-workflow memory); deploy command requires Vercel auth"
+  - test: "Typed-code happy path end-to-end on real iPhone (re-scoped AUTH-05)"
+    expected: "Type 'test-ab12' (lowercase, optional trailing space) on /; tap 'Entrar al viaje'; lands at /t/11111111-.../docs within ~2s with no email, no login prompt, no upgrade banner; top header shows trip name and mango 'Sin cuenta' pill"
+    why_human: "Requires live Supabase with Anonymous Sign-ins enabled, live seed trip TEST-AB12, and a real device to observe the join flow and UI"
+  - test: "Membership row created in DB (re-scoped AUTH-05 step 2)"
+    expected: "After typed-code join, Supabase Dashboard SQL: SELECT user_id, role FROM public.trip_members WHERE trip_id='11111111-1111-1111-1111-111111111111' ORDER BY joined_at DESC LIMIT 5 shows new row with anonymous user_id and role='member'"
+    why_human: "Requires live anonymous sign-in against real Supabase project to verify the DB mutation"
+  - test: "Pill is inert (D-11 static indicator)"
+    expected: "Tapping 'Sin cuenta' pill does nothing — no upgrade sheet, no state change"
+    why_human: "Requires real device to confirm the <span> has no tap behavior"
+  - test: "Session persists across browser restarts (AUTH-03)"
+    expected: "Force-quit Safari, reopen, navigate to /t/11111111-.../docs — still inside trip (not bounced to /)"
+    why_human: "Cookie persistence can only be confirmed on a real device; programmatic checks cannot simulate Safari force-quit"
+  - test: "Sign out returns to code-entry welcome screen (AUTH-04)"
+    expected: "Perfil -> Cerrar sesión -> confirm -> arrives at / showing the InviteCodeForm (not email field)"
+    why_human: "Requires real device and live session"
+  - test: "Unknown code error path"
+    expected: "Type 'NOPE-9999', tap submit, redirected back to / with Spanish toast 'Este link de invitación no es válido…' (es.errors.invalidJoinToken); no membership created"
+    why_human: "Requires live Supabase to confirm NULL resolution from the RPC and correct toast behavior"
+  - test: "Malformed code inline validation (no network round-trip)"
+    expected: "Type 'hello' (no hyphen), tap submit — inline Spanish format error (es.entry.invalidFormat: 'Revisa el código: formato como EJEM-AB12.') shown under field; no navigation, no network call"
+    why_human: "Client-side Zod validation behavior can be observed only in a real browser"
+  - test: "Code-in-URL fallback (/join/[code] route)"
+    expected: "Navigate directly to https://{domain}/join/test-ab12 — same result as typed-code happy path"
+    why_human: "Requires live deployed app and device to verify the GET route handler + redirect"
+  - test: "GitHub Actions keep-alive manual run (INFRA-05)"
+    expected: "gh workflow run keep-alive.yml returns success; curl log shows HTTP 200 from Supabase REST endpoint"
+    why_human: "Requires GitHub authentication and live workflow execution"
+  - test: "Production manifest.webmanifest returns valid JSON after redeploy (PWA groundwork)"
+    expected: "GET https://sharedtrip.vercel.app/manifest.webmanifest returns HTTP 200, Content-Type: application/manifest+json, JSON has name 'SharedTrip', lang 'es', display 'standalone'"
+    why_human: "Requires a prod redeploy to be confirmed; stale deployments serve 404"
 ---
 
-# Phase 1: Foundation + Auth — Verification Report
+# Phase 1: Foundation + Auth — Verification Report (Re-verification after Plans 08+09 re-scope)
 
-**Phase Goal:** Any user — including an anonymous friend — can open the app on a real iPhone, join via invite link, and hold an authenticated session that persists across browser restarts.
-**Verified:** 2026-05-30T01:00:00Z
+**Phase Goal:** Any user — including a friend with no account — can open the app on a real iPhone, join a trip by TYPING a short invite code (e.g. `MARR-4F9K` / seed `TEST-AB12`), set a display name, and hold an anonymous session that persists across browser restarts.
+**Verified:** 2026-06-03T20:00:00Z
 **Status:** human_needed
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after Plans 08+09 re-scope implementation (typed invite-code entry replaces magic-link)
 
 ---
 
@@ -43,129 +67,77 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| SC-1 | Developer deploys to Vercel and app loads on a real iPhone via HTTPS with valid domain | ✓ VERIFIED | `https://sharedtrip.vercel.app` returns HTTP 200; `lang="es"` on HTML element; Spanish content served |
-| SC-2 | User requests magic link, email arrives with unique subject, clicking establishes persistent session | ? UNCERTAIN | Code is complete (`sendMagicLink`, `signInWithOtp`, callback with `exchangeCodeForSession`, `getUser()` in middleware); Resend SMTP + dashboard template config requires human test |
-| SC-3 | Second person opens invite URL, gets anonymous Supabase session, sees themselves as member — no email required | ? UNCERTAIN | `joinTrip` action calls `signInAnonymously()`, validates token via UUID Zod schema, upserts `trip_members`; requires live anon sign-ins enabled + real device to confirm |
-| SC-4 | Anonymous user upgrades to real account by adding email without losing trip membership | ? UNCERTAIN | `AnonymousUpgradeSheet` calls `supabase.auth.updateUser({ email })` via browser factory (correct pattern); Supabase preserves `user.id` on upgrade per docs; requires live test to confirm |
-| SC-5 | GitHub Actions cron pings Supabase every 5 minutes; all UI strings from `es.ts` with no hardcoded English | ✓ VERIFIED (partial — cron verified in code; English-absence verified) | `keep-alive.yml` has `*/5 * * * *`; `grep` finds zero English user-facing strings in component files; one minor hardcoded Spanish string found (see gaps) |
+| SC-1 | Developer deploys to Vercel and app loads on a real iPhone via HTTPS with valid domain | VERIFIED | `https://sharedtrip.vercel.app` confirmed live (HTTP 200, `lang="es"`) from previous verification; prod deploy of Plans 08+09 pending human action |
+| SC-2 | A person opens the app, types a short invite code (no email, no login), gets an anonymous Supabase session, sees themselves as a member, and sets a display name | VERIFIED (code) / HUMAN (runtime) | `InviteCodeForm` -> `/join/[code]` route -> `joinTripByCode` -> `get_trip_id_by_invite_code` RPC -> service-role upsert: full end-to-end code path wired. Data layer live (Plan 08 confirmed by human). Real-device run pending. |
+| SC-3 | The anonymous session persists across browser restarts; user can sign out from any screen | VERIFIED (code) / HUMAN (runtime) | `@supabase/ssr` cookie-based session; middleware calls `getUser()` on every request; `signOut` server action wired to Perfil tab. Real-device persistence test pending. |
+| SC-4 | A GitHub Actions cron pings Supabase; all UI strings from `es.ts` with no hardcoded English | VERIFIED | `*/5 * * * *` cron confirmed in `keep-alive.yml`; zero English user-facing strings in component JSX (all via `es.entry.*`, `es.errors.*`, `es.anon.*`, `es.tabs.*`, etc.) |
 
-**Score:** 14/16 individual must-haves verified (2 require human device testing)
+**Score:** 13/13 individual must-haves verified in code (see detail tables below)
+
+---
+
+### Required Artifacts (Plans 08+09 — New Must-Haves)
+
+| Artifact | Status | Details |
+|----------|--------|---------|
+| `supabase/migrations/20260530000006_invite_code.sql` | VERIFIED | `ADD COLUMN invite_code text`; backfill; `SET NOT NULL`; `UNIQUE` constraint `trips_invite_code_key`; `get_trip_id_by_invite_code(lookup_code text)` SECURITY DEFINER STABLE `SET search_path = public` with `upper(trim(lookup_code))`; `GRANT EXECUTE ... TO anon, authenticated`; no RLS policy touched |
+| `supabase/migrations/20260530000004_phase1_seed_test_trip.sql` | VERIFIED | trips INSERT extended with `invite_code = 'TEST-AB12'`; idempotent UPDATE present (`WHERE invite_code IS DISTINCT FROM 'TEST-AB12'`) |
+| `src/types/database.ts` | VERIFIED | `invite_code: string` in trips `Row`; `invite_code?: string` in `Insert`/`Update`; `get_trip_id_by_invite_code: { Args: { lookup_code: string }; Returns: string }` in `Functions` block; `invite_token` retained |
+| `src/actions/members.ts` | VERIFIED | `'use server'`; exports `joinTripByCode`; step 2 calls `supabase.rpc('get_trip_id_by_invite_code', { lookup_code: code })`; service-role `trip_members.upsert` with `onConflict: 'trip_id,user_id'` verbatim from anon-join-architecture; no redirect; errors via `es.errors.*` only |
+| `src/components/auth/InviteCodeForm.tsx` | VERIFIED | `'use client'`; `useForm` + `zodResolver`; `CODE_RE` imported from `@/lib/utils/invite-code`; validates on `onBlur`; normalizes `trim().toUpperCase()`; `router.push('/join/' + encodeURIComponent(normalized))`; spinner via `useTransition`; all strings via `es.entry.*` |
+| `src/app/join/[code]/route.ts` | VERIFIED | GET route handler; `>32 char` length guard; calls `joinTripByCode(decoded)`; redirects to `/t/${result.tripId}/docs` on success; `/?error=...` on failure; no hardcoded Spanish |
+| `src/app/page.tsx` | VERIFIED | Renders `InviteCodeForm` (not `MagicLinkForm`); heading/subheading use `es.entry.heading`/`es.entry.subheading`; `Wordmark` + `ErrorToast` retained |
+| `src/i18n/es.ts` | VERIFIED | `entry:` namespace present with `heading`, `subheading`, `codeLabel`, `codePlaceholder`, `submitCta`, `invalidFormat` |
+| `src/lib/utils/invite-code.ts` | VERIFIED | Exports `CODE_RE = /^[A-Za-z0-9]{2,8}-[A-Za-z0-9]{3,6}$/`; `normalizeInviteCode`; `isWellFormedInviteCode` |
+| `src/actions/auth.ts` | VERIFIED | `sendMagicLink` removed; `signOut` retained intact; no dangling imports |
+| `src/components/common/SinCuentaPill.tsx` | VERIFIED | `<span>` (not `<button>`); no `useBannerStore` import; no `openUpgradeSheet`; renders `es.anon.pill`; static non-interactive indicator |
+| `src/components/layout/TopHeader.tsx` | VERIFIED | No `AnonymousUpgradeSheet` import or render; no `useBannerStore` wiring; `{isAnonymous && <SinCuentaPill />}` retained |
+| `src/app/t/[tripId]/layout.tsx` | VERIFIED | No `AnonymousBanner` import or render; comment: "email-upgrade banner is intentionally not imported — deferred to Phase 6 (D-12)" |
+
+**Deleted files confirmed absent:**
+
+| File | Status |
+|------|--------|
+| `src/components/auth/MagicLinkForm.tsx` | DELETED |
+| `src/app/auth/callback/route.ts` | DELETED (directory is empty) |
+| `src/app/auth/check-email/page.tsx` | DELETED (directory is empty) |
+| `src/app/join/[token]/route.ts` | DELETED |
+
+---
+
+### Key Link Verification (Plans 08+09 Critical Path)
+
+| From | To | Via | Status | Details |
+|------|----|----|--------|---------|
+| `InviteCodeForm.tsx` | `/join/[code]/route.ts` | `router.push('/join/' + encodeURIComponent(normalized))` | WIRED | `router.push` call confirmed in `onSubmit`; normalized code passed |
+| `/join/[code]/route.ts` | `src/actions/members.ts` | `import { joinTripByCode }` + `await joinTripByCode(decoded)` | WIRED | Import and call both present in route handler |
+| `src/actions/members.ts` | `get_trip_id_by_invite_code` (Postgres RPC) | `supabase.rpc('get_trip_id_by_invite_code', { lookup_code: code })` | WIRED | Exact call at line 68; typed against `src/types/database.ts` |
+| `src/actions/members.ts` | `trip_members` (service-role insert) | `admin.from('trip_members').upsert(...)` | WIRED | Service-role client constructed with `SUPABASE_SECRET_KEY`; `onConflict: 'trip_id,user_id'` unchanged |
+| `src/app/page.tsx` | `InviteCodeForm` | `import { InviteCodeForm }` + `<InviteCodeForm />` render | WIRED | No `MagicLinkForm` reference anywhere in `src/` |
+| `supabase/migrations/...006_invite_code.sql` | Live Supabase project | Applied via Dashboard SQL Editor (human checkpoint Plan 08 Task 3) | WIRED (confirmed live) | 4/4 verification queries passed by human: seed row = TEST-AB12, case-insensitive resolution, NULL for unknown, UNIQUE constraint present |
 
 ---
 
 ### Requirements Coverage
 
-| Requirement | Description | Status | Evidence |
-|-------------|-------------|--------|----------|
-| INFRA-01 | Supabase project with DB, Auth, Storage, Realtime | ✓ SATISFIED | `.gsd-supabase-project.txt` present; `supabase/.temp/linked-project.json` exists; `src/types/database.ts` generated from live schema |
-| INFRA-02 | Schema: 6 tables (trips, trip_members, documents, itinerary_items, expenses, profiles) | ✓ SATISFIED | `20260530000001_initial_schema.sql` contains all 6 tables with correct columns and foreign keys |
-| INFRA-03 | RLS enabled on all tables; `is_trip_member(trip_id)` SECURITY DEFINER | ✓ SATISFIED | `grep` confirms 6× `ENABLE ROW LEVEL SECURITY`, 17× `CREATE POLICY`, `is_trip_member` with `SECURITY DEFINER` and `SET search_path = public`; all policies use `(SELECT auth.uid())` — zero bare `auth.uid()` calls |
-| INFRA-04 | `trip-documents` storage bucket private + RLS policies | ✓ SATISFIED | `20260530000002_storage_bucket_rls.sql` has 3 storage policies using `storage.foldername(name))[1]::uuid` (Pitfall #6 enforced) |
-| INFRA-05 | GitHub Actions keep-alive cron every 5 min | ✓ SATISFIED | `keep-alive.yml` has `*/5 * * * *`, `workflow_dispatch`, single curl step; `SUPABASE_SECRET_KEY` NOT present as secret (only `SUPABASE_PUBLISHABLE_KEY`) |
-| INFRA-06 | Vercel deploy with functional domain + env vars | ✓ SATISFIED | `https://sharedtrip.vercel.app` returns HTTP 200; all env vars documented in `.env.local.example` with correct names |
-| INFRA-07 | `es.ts` dictionary — zero hardcoded user-facing strings in JSX | ✓ VERIFIED (1 minor exception) | `src/i18n/es.ts` contains all namespaces (auth, tabs, profile, tripSwitcher, anon, errors); one hardcoded string `"Volver al inicio"` found in `src/app/auth/check-email/page.tsx:42` — not in `es.ts`; this is a WARNING-level deviation but does not block functionality |
-| AUTH-01 | Magic link request → email → click establishes session | ? HUMAN | Code complete; `sendMagicLink`, `signInWithOtp`, `/auth/callback` with `exchangeCodeForSession` all wired; requires real email delivery test |
-| AUTH-02 | Unique email subject per request (anti-Gmail threading) | ? HUMAN | Dashboard template uses `{{ .Token }}` in subject per plan; code calls `signInWithOtp` without custom subject — relies on dashboard template config; requires human to verify email receipt |
-| AUTH-03 | Session persists across browser restart | ? HUMAN | `@supabase/ssr` cookie-based session; middleware calls `getUser()` on every request; requires real device test |
-| AUTH-04 | User can sign out from any screen | ✓ SATISFIED | `signOut()` Server Action in `src/actions/auth.ts` calls `supabase.auth.signOut()` + `redirect('/')`;  `SignOutSection` component uses `AlertDialog` confirmation + calls `signOut()` |
-| AUTH-05 | Anonymous join via `signInAnonymously` — no email required | ? HUMAN | `joinTrip` server action: checks user → `signInAnonymously()` if none → looks up trip by token → upserts `trip_members`; requires live Supabase anon sign-ins enabled + device test |
-| AUTH-06 | Anonymous → real account upgrade preserving trip membership | ? HUMAN | `AnonymousUpgradeSheet` uses browser Supabase client (correct per RESEARCH Pattern 4); calls `updateUser({ email })`; Supabase preserves `user.id` on upgrade |
-| UI-01 | All UI in Spanish — no English visible | ✓ SATISFIED | `src/i18n/es.ts` is the sole string source; component grep finds no English user-facing text (only one minor case per INFRA-07 note) |
-| UI-02 | Vibrant Tropical Sunset palette — saturated colors | ✓ SATISFIED | `globals.css` has `@theme inline` with full Tropical Sunset palette tokens; `#FF6B6B` coral, `#3DCCC7` teal, `#FFB627` mango, `#0F1729` dark navy applied consistently |
-| UI-03 | Responsive from 320px to desktop | ✓ SATISFIED | `max-w-md mx-auto` with `px-4` on all content layouts; no hard-coded pixel widths in components |
-
----
-
-### Required Artifacts
-
-| Artifact | Status | Details |
-|----------|--------|---------|
-| `package.json` | ✓ VERIFIED | `next: 16.2.6`, `@supabase/ssr: ^0.10.3`, `@supabase/supabase-js: ^2.106.2`, `tailwindcss: ^4` — all correct versions |
-| `src/app/globals.css` | ✓ VERIFIED | `@import "tailwindcss"`, `@theme inline`, `--color-primary: var(--primary)` — Tailwind v4 CSS-first confirmed |
-| `src/i18n/es.ts` | ✓ VERIFIED | Contains `auth`, `tabs`, `profile`, `tripSwitcher`, `anon`, `errors` namespaces; `as const` assertion |
-| `src/app/page.tsx` | ✓ VERIFIED | Imports `es` from `@/i18n/es`; renders `{es.auth.welcomeHeading}` and `{es.auth.welcomeSubheading}`; contains `<MagicLinkForm />` |
-| `src/app/layout.tsx` | ✓ VERIFIED | `lang="es"`, Inter font from `next/font/google`, `weight: ['400', '700']`, `<Toaster />` included |
-| `src/lib/supabase/client.ts` | ✓ VERIFIED | `createBrowserClient<Database>` with `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
-| `src/lib/supabase/server.ts` | ✓ VERIFIED | `createServerClient<Database>` with `await cookies()`, `getAll()` + `setAll()` pattern |
-| `src/lib/supabase/middleware.ts` | ✓ VERIFIED | `updateSession` exports; calls `supabase.auth.getUser()` — NOT `getSession()` |
-| `src/middleware.ts` | ✓ VERIFIED | Delegates to `updateSession`; correct matcher excluding static assets |
-| `src/actions/auth.ts` | ✓ VERIFIED | `'use server'`, exports `sendMagicLink` + `signOut`; uses `NEXT_PUBLIC_APP_URL` for redirect; no `admin.generateLink()` |
-| `src/app/auth/callback/route.ts` | ✓ VERIFIED | `exchangeCodeForSession`; T-03-06 open-redirect guard `if (next.startsWith('//') \|\| !next.startsWith('/')) next = '/'` present |
-| `src/app/auth/check-email/page.tsx` | ✓ VERIFIED | Server Component; renders `es.auth.checkEmailHeading` and `es.auth.checkEmailBody(email)`; no `'use client'`; one hardcoded string "Volver al inicio" |
-| `src/components/auth/MagicLinkForm.tsx` | ✓ VERIFIED | `'use client'`; `useForm` + `zodResolver`; calls `sendMagicLink`; `Loader2` spinner; `mode: 'onBlur'` |
-| `src/components/auth/AnonymousUpgradeSheet.tsx` | ✓ VERIFIED | `'use client'`; uses browser `createClient`; calls `updateUser({ email })`; no server factory; RHF + Zod |
-| `supabase/migrations/20260530000001_initial_schema.sql` | ✓ VERIFIED | 6× `ENABLE ROW LEVEL SECURITY`, 17× `CREATE POLICY`, `is_trip_member` SECURITY DEFINER, all policies use `(SELECT auth.uid())` |
-| `supabase/migrations/20260530000002_storage_bucket_rls.sql` | ✓ VERIFIED | 3 storage policies; `storage.foldername(name))[1]::uuid` — Pitfall #6 enforced |
-| `supabase/migrations/20260530000003_profile_autocreate_trigger.sql` | ✓ VERIFIED | `ON auth.users`, `SECURITY DEFINER`, `ON CONFLICT (id) DO NOTHING` |
-| `supabase/migrations/20260530000004_phase1_seed_test_trip.sql` | ✓ VERIFIED | Seed trip `11111111-...`, invite token `22222222-...`, all INSERTs idempotent |
-| `src/types/database.ts` | ✓ VERIFIED | Exports `Database` interface; contains `trips`, `trip_members`, `documents`, `profiles`, `itinerary_items`, `expenses` |
-| `.github/workflows/keep-alive.yml` | ✓ VERIFIED | `*/5 * * * *` cron, `workflow_dispatch`, single curl step; uses `SUPABASE_PUBLISHABLE_KEY` only |
-| `src/app/manifest.ts` | ✓ VERIFIED (code) | `lang: 'es'`, `display: 'standalone'`, `background_color: '#0F1729'`, both icon sizes; **WARNING: production URL returns 404 — deployment gap, not code bug** |
-| `public/icon-192.png` | ✓ VERIFIED | 3,261 bytes (real PNG content, not empty) |
-| `public/icon-512.png` | ✓ VERIFIED | 12,546 bytes (real PNG content, not empty) |
-| `src/app/t/[tripId]/layout.tsx` | ✓ VERIFIED | Auth guard: `getUser()` → `redirect('/')` if no user; fetches trip via RLS; renders `TopHeader` + `AnonymousBanner` + `BottomTabBar` |
-| `src/components/layout/BottomTabBar.tsx` | ✓ VERIFIED | `usePathname`, 4 tabs with Lucide icons, `pb-[env(safe-area-inset-bottom)]`, active state coral |
-| `src/components/layout/TopHeader.tsx` | ✓ VERIFIED | `TripSwitcherSheet`, `SinCuentaPill` (conditional on `isAnonymous`), `UserAvatar`, `AnonymousUpgradeSheet` |
-| `src/components/common/SinCuentaPill.tsx` | ✓ VERIFIED | `bg-secondary text-bg` (mango/navy), calls `openUpgradeSheet` from Zustand |
-| `src/components/common/AnonymousBanner.tsx` | ✓ VERIFIED | `border-l-4 border-secondary`, `useBannerStore`, `animate-in slide-in-from-top` |
-| `src/stores/banner.ts` | ✓ VERIFIED | Zustand `create` — NO `persist` middleware; has `upgradeSheetOpen`, `openUpgradeSheet`, `closeUpgradeSheet` |
-| `src/actions/members.ts` | ✓ VERIFIED | `'use server'`, `signInAnonymously`, trip lookup via `eq('invite_token', token)`, `upsert` with `onConflict` |
-| `src/app/join/[token]/page.tsx` | ✓ VERIFIED | Zod UUID validation before `joinTrip`; redirects to `/?error=` on failure; redirects to `/t/${tripId}/docs` on success |
-| `src/actions/profile.ts` | ✓ VERIFIED | `'use server'`, Zod validation (1–60 chars), `update({ display_name })`, `revalidatePath('/t/[tripId]', 'layout')` |
-| `src/lib/utils/avatar.ts` | ✓ VERIFIED | 30 ADJECTIVES, 30 ANIMALS, `ANIMAL_EMOJIS` map, `AVATAR_COLORS` triple, djb2 hash, `getAvatarData` export |
-| `src/lib/utils/avatar.test.ts` | ✓ VERIFIED | 7 tests passing (vitest run exits 0) |
-| `.env.local.example` | ✓ VERIFIED | Contains `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not legacy `ANON_KEY`); `SUPABASE_SECRET_KEY` (not `NEXT_PUBLIC_`); all 4 env vars documented |
-| `components.json` | ✓ VERIFIED | shadcn v4 config with Tailwind v4 |
-
----
-
-### Key Link Verification
-
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| `src/app/page.tsx` | `src/i18n/es.ts` | `import { es } from '@/i18n/es'` | ✓ WIRED | Used in 3 places: heading, subheading, welcomeHeading |
-| `src/app/layout.tsx` | `src/app/globals.css` | `import './globals.css'` | ✓ WIRED | First import in layout.tsx |
-| `src/middleware.ts` | `src/lib/supabase/middleware.ts` | `import { updateSession }` | ✓ WIRED | Direct delegation, no logic in middleware.ts |
-| `src/components/auth/MagicLinkForm.tsx` | `src/actions/auth.ts` | `sendMagicLink` | ✓ WIRED | Called inside `useTransition` on form submit |
-| `src/app/auth/callback/route.ts` | `src/lib/supabase/server.ts` | `createClient + exchangeCodeForSession` | ✓ WIRED | `await createClient()` → `exchangeCodeForSession(code)` |
-| `src/app/join/[token]/page.tsx` | `src/actions/members.ts` | `joinTrip(parsed.data)` | ✓ WIRED | After Zod UUID validation |
-| `src/components/layout/TopHeader.tsx` | `src/components/common/SinCuentaPill.tsx` | `{isAnonymous && <SinCuentaPill />}` | ✓ WIRED | Conditional render on `isAnonymous` prop |
-| `src/app/t/[tripId]/layout.tsx` | `src/components/common/AnonymousBanner.tsx` | `{user.is_anonymous && <AnonymousBanner />}` | ✓ WIRED | Server component reads `user.is_anonymous` from Supabase |
-| `src/components/auth/AnonymousUpgradeSheet.tsx` | `src/lib/supabase/client.ts` | `createClient()` browser factory | ✓ WIRED | Called inside `startTransition` for `updateUser` |
-| `src/actions/profile.ts` | `supabase.from('profiles').update` | `.update({ display_name })` | ✓ WIRED | After auth guard + Zod validation |
-| `src/app/manifest.ts` | `public/icon-192.png + public/icon-512.png` | `icons` array with `/icon-192.png`, `/icon-512.png` | ✓ WIRED | Both files exist with real binary content |
-
----
-
-### Architectural Decisions Verified
-
-| Decision | Required | Actual | Status |
-|----------|----------|--------|--------|
-| `@supabase/ssr` (not deprecated `auth-helpers-nextjs`) | Yes | `createBrowserClient` / `createServerClient` from `@supabase/ssr@0.10.3` | ✓ PASS |
-| Serwist NOT wired yet (deferred to Phase 3) | Yes | `@serwist/next` installed in `package.json` but NOT configured in `next.config.ts` | ✓ PASS |
-| Tailwind v4 CSS-first (no `tailwind.config.js`) | Yes | No `tailwind.config.js` or `.ts` found; `globals.css` uses `@import "tailwindcss"` | ✓ PASS |
-| `getUser()` only in middleware, never `getSession()` | Yes | `getSession()` zero occurrences in server files | ✓ PASS |
-| No `admin.generateLink()` — simple OTP approach | Yes | `admin.generateLink` appears only in comments, never called | ✓ PASS |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not legacy `ANON_KEY`) | Yes | Zero occurrences of `SUPABASE_ANON_KEY` in entire `src/` tree | ✓ PASS |
-| `SUPABASE_SECRET_KEY` NOT in GitHub Actions secrets | Yes | `keep-alive.yml` comment says "NEVER added"; `SUPABASE_SECRET_KEY` text appears only in comment, not in `secrets.*` | ✓ PASS |
-| T-03-06 open-redirect guard in `/auth/callback` | Yes | `if (next.startsWith('//') \|\| !next.startsWith('/')) next = '/'` at lines 18-20 | ✓ PASS |
-| Anonymous upgrade via browser client (not server action) | Yes | `AnonymousUpgradeSheet` imports `createClient` from `@/lib/supabase/client` (browser factory) | ✓ PASS |
-| Zustand banner store NOT persisted | Yes | `src/stores/banner.ts` uses `create` without `persist` middleware | ✓ PASS |
-
----
-
-### Pitfall Mitigations
-
-| Pitfall | Mitigation Required | Code Evidence | Status |
-|---------|--------------------|-|-------|
-| RLS disabled by default (Pitfall #2) | RLS in same migration as table creation | 6× `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` in `20260530000001_initial_schema.sql` | ✓ MITIGATED |
-| Bare `auth.uid()` performance/recursion | `(SELECT auth.uid())` wrapper everywhere | Zero bare `auth.uid()` without `SELECT` wrapper in any policy | ✓ MITIGATED |
-| Gmail threading expired link (Pitfall #5) | `{{ .Token }}` in email subject | Dashboard template config (user_setup); code uses `signInWithOtp` — template renders server-side | ? HUMAN (dashboard) |
-| Storage path traversal (Pitfall #6) | `storage.foldername(name))[1]::uuid` | `20260530000002_storage_bucket_rls.sql` line 12 | ✓ MITIGATED |
-| Supabase free-tier pause (Pitfall #4) | GitHub Actions cron every 5 min | `*/5 * * * *` in `keep-alive.yml` | ✓ MITIGATED |
-| Open redirect in callback (T-03-06) | Validate `next` param starts with `/` not `//` | Lines 18-20 in `auth/callback/route.ts` | ✓ MITIGATED |
-| Deprecated key format (`SUPABASE_ANON_KEY`) | Use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Zero legacy key name occurrences | ✓ MITIGATED |
-| `getSession()` server-side insecurity | Use only `getUser()` | `getSession()` appears 3× as warning COMMENTS only — never called | ✓ MITIGATED |
+| Requirement | Plan | Description | Status | Evidence |
+|-------------|------|-------------|--------|----------|
+| INFRA-01 | 01-02 | Supabase project with DB, Auth, Storage, Realtime | SATISFIED | Live project confirmed; `.gsd-supabase-project.txt` present |
+| INFRA-02 | 01-02 | Schema: 6 tables with correct columns and FK | SATISFIED | `20260530000001_initial_schema.sql` — 6 tables confirmed in prior verification |
+| INFRA-03 | 01-02 | RLS on all tables; `is_trip_member` SECURITY DEFINER | SATISFIED | 6x ENABLE ROW LEVEL SECURITY; `is_trip_member` SECURITY DEFINER confirmed in prior verification |
+| INFRA-04 | 01-02 | `trip-documents` bucket private + RLS policies | SATISFIED | `20260530000002_storage_bucket_rls.sql` confirmed in prior verification |
+| INFRA-05 | 01-02 | GitHub Actions keep-alive cron every 5 min | SATISFIED | `*/5 * * * *` in `keep-alive.yml`; `workflow_dispatch` trigger present |
+| INFRA-06 | 01-01 | Vercel deploy with functional domain + env vars | SATISFIED | `https://sharedtrip.vercel.app` live; prod redeploy of Plans 08+09 pending (human item) |
+| INFRA-07 | 01-01/09 | `es.ts` dictionary — zero hardcoded user-facing English in JSX | SATISFIED | `es.entry.*` namespace added (Plan 09); no English in component files; stale comment in `ErrorToast.tsx` line 4 (`/join/[token]`) is a code comment, not user-visible |
+| AUTH-01 | — | Magic link email | DEFERRED | Deferred to Phase 6 per REQUIREMENTS.md re-scope 2026-06-01 |
+| AUTH-02 | — | Unique email subject per request | DEFERRED | Deferred to Phase 6 per REQUIREMENTS.md re-scope 2026-06-01 |
+| AUTH-03 | 01-03/05 | Session persists across browser restarts (anonymous session) | SATISFIED (code) / HUMAN (device) | `@supabase/ssr` cookie-based session; `getUser()` in middleware; real-device confirmation pending |
+| AUTH-04 | 01-05 | User can sign out from any screen | SATISFIED | `signOut` server action retained in `src/actions/auth.ts`; wired in Perfil tab |
+| AUTH-05 | 01-08/09 | Anonymous join via typed invite code (re-scoped) | SATISFIED (code) / HUMAN (device) | Full path: `InviteCodeForm` -> `/join/[code]` -> `joinTripByCode` -> `get_trip_id_by_invite_code` RPC -> service-role upsert; data layer live; real-device test pending |
+| AUTH-06 | — | Anonymous -> real account upgrade | DEFERRED | Deferred to Phase 6 per REQUIREMENTS.md re-scope 2026-06-01 |
+| UI-01 | 01-01/09 | All UI in Spanish, no English visible | SATISFIED | All strings via `es.*`; no hardcoded English in JSX |
+| UI-02 | 01-01 | Vibrant Tropical Sunset palette | SATISFIED | `globals.css` with full palette tokens confirmed in prior verification |
+| UI-03 | 01-01 | Responsive from 320px to desktop | SATISFIED | `max-w-md mx-auto px-4` pattern confirmed in prior verification |
 
 ---
 
@@ -173,22 +145,9 @@ human_verification:
 
 | Check | Command | Result | Status |
 |-------|---------|--------|--------|
-| TypeScript | `npx tsc --noEmit` | Exits 0, zero errors | ✓ PASS |
-| Next.js build | `npm run build` | Exits 0; 10 routes generated including `/manifest.webmanifest` | ✓ PASS |
-| Tests | `npm test` | 7/7 tests pass (avatar.test.ts) | ✓ PASS |
-
----
-
-### Production Deploy Status
-
-| Check | URL | Result | Status |
-|-------|-----|--------|--------|
-| Welcome page loads | `https://sharedtrip.vercel.app/` | HTTP 200, Spanish content, `lang="es"` | ✓ LIVE |
-| Manifest route (production) | `https://sharedtrip.vercel.app/manifest.webmanifest` | HTTP 404 — stale deployment | ⚠️ WARNING |
-| Manifest route (local build) | `.next/server/app/manifest.webmanifest.meta` | `status: 200`, `content-type: application/manifest+json` | ✓ BUILT |
-| Latest git commit deployed | GitHub `main` branch at `8cc0381` | Vercel shows 2 deployments from ~1h ago — branch is up to date with origin | ? UNCERTAIN — ROADMAP progress table not updated to 5/5 |
-
-**Manifest 404 Root Cause:** The `manifest.ts` file was committed in `bf8d261` (Plan 04, ~90 minutes ago). Both latest Vercel production deployments (`sharedtrip-r83s9hs0x` and `sharedtrip-kgde9q65u`) return 404 for `/manifest.webmanifest` even through authenticated `vercel curl`. The local `.next/server/app/manifest.webmanifest.meta` confirms the file builds correctly with `status: 200`. This appears to be a Vercel deployment issue (possibly the `main` branch alias not pointing to the latest deployment). **A `vercel --prod` redeploy will fix this — it is not a code problem.**
+| TypeScript | `npx tsc --noEmit` | Exits 0, zero errors | PASS |
+| Next.js build | `npm run build` | Exits 0; `/join/[code]` route present in output | PASS |
+| Tests | `npm test` | 50/50 tests pass (5 test files) | PASS |
 
 ---
 
@@ -196,72 +155,112 @@ human_verification:
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `src/app/auth/check-email/page.tsx` | 42 | `Volver al inicio` — hardcoded Spanish string not in `es.ts` | ⚠️ Warning | Minor INFRA-07 deviation; non-critical back-navigation link only |
-| `src/app/layout.tsx` | 15 | `'Tu bóveda de viaje compartida — boletos, itinerario y más.'` — hardcoded description | ℹ️ Info | `<meta name="description">` tag only, not user-visible UI; acceptable for SEO metadata |
-| `src/app/manifest.ts` | 12 | Same hardcoded description | ℹ️ Info | PWA manifest description field, not rendered in UI |
-| `.planning/ROADMAP.md` | Progress Table | `4/5 | In Progress` — stale after Plan 05 completion | ℹ️ Info | Documentation drift only; `01-05-PLAN.md` is marked `[x]` in the Phase 1 Plans list above it |
+| `src/components/common/ErrorToast.tsx` | 4 | Stale comment references `/join/[token]` (deleted route) and `/auth/callback` (deleted file) | Info | Code comment only, not user-visible; no functional impact; documentation drift |
 
-**No TBD/FIXME/XXX markers found** in any source files. No console-log-only implementations. No empty JSX returns.
+**No TBD/FIXME/XXX markers found** in any files modified by Plans 08 or 09. No console-log-only implementations. No empty JSX returns. No hardcoded Spanish strings in new/modified components.
+
+**ROADMAP SC-4 wording discrepancy:** ROADMAP.md SC-4 says "every 3 days" but `keep-alive.yml` runs `*/5 * * * *` (every 5 minutes) which matches INFRA-05 ("cada 5 minutos"). The ROADMAP SC-4 wording is stale documentation; the code satisfies INFRA-05. Not a functional gap.
+
+---
+
+### Behavioral Spot-Checks
+
+| Behavior | Evidence | Status |
+|----------|----------|--------|
+| `/join/[code]` route registered | `npm run build` output shows `ƒ /join/[code]` | PASS |
+| `joinTripByCode` calls correct RPC | `supabase.rpc('get_trip_id_by_invite_code', { lookup_code: code })` at line 68 | PASS |
+| `sendMagicLink` fully removed | `grep -rn sendMagicLink src/` returns 0 matches | PASS |
+| `MagicLinkForm` fully removed | file deleted + `grep -rn MagicLinkForm src/` returns 0 matches | PASS |
+| `SinCuentaPill` is `<span>` not `<button>` | File confirmed as `<span>` with no `onClick` or `useBannerStore` | PASS |
+| `AnonymousBanner` not rendered | `grep -c 'AnonymousBanner' src/app/t/[tripId]/layout.tsx` = 0 | PASS |
+| `AnonymousUpgradeSheet` not rendered | `grep -rl '<AnonymousUpgradeSheet' src/` returns empty | PASS |
 
 ---
 
 ### Human Verification Required
 
-The following items cannot be verified programmatically. All code is in place; these are live environment confirmations:
+All code is complete, wired, and tested. The following require a real device + production environment:
 
-### 1. Magic Link End-to-End (AUTH-01, AUTH-02, AUTH-03)
+### 1. Production Deploy
 
-**Test:** Open deployed app in Safari on a real iPhone. Enter email, submit form, wait for email, tap link, confirm session established. Force-quit Safari, reopen, confirm session persists.
-**Expected:** Email arrives within 30s with subject `Acceso a tu viaje · {unique-token}`. Callback redirects to `/`. Auth cookies visible in Safari Web Inspector. Session survives force-quit + reopen.
-**Why human:** Requires Resend SMTP configured in Supabase dashboard, live email delivery, and real device session persistence test.
+**Test:** Run `vercel --prod --force` (per project memory — prod does NOT auto-deploy on push).
+**Expected:** Deploy succeeds; `https://sharedtrip.vercel.app/` shows the invite-code entry screen.
+**Why human:** Requires Vercel auth; production not auto-deployed.
 
-### 2. Anonymous Join Flow (AUTH-05)
+### 2. Typed-Code Happy Path — AUTH-05 (re-scoped)
 
-**Test:** In fresh Safari (no cookies), navigate to `https://sharedtrip.vercel.app/join/22222222-2222-2222-2222-222222222222`.
-**Expected:** Lands at `/t/11111111-.../docs` within 2 seconds, no email prompt. SinCuentaPill "Sin cuenta" (mango background) visible in top-right header. AnonymousBanner with mango left stripe visible below header.
-**Why human:** Requires Anonymous Sign-ins enabled in Supabase dashboard and live DB seed trip to be present.
+**Test:** Fresh Safari on iPhone with SharedTrip cookies cleared. Open `https://{domain}/`. Confirm welcome screen shows `es.entry.heading` ('Ingresa tu código de viaje') and a CODE input (not email). Type `test-ab12` (lowercase, trailing space allowed). Tap 'Entrar al viaje'. Observe spinner.
+**Expected:** Lands at `/t/11111111-.../docs` within ~2s. No email prompt. Top header: trip name + mango 'Sin cuenta' pill + animal avatar. No email-upgrade banner below header.
+**Why human:** Requires live Supabase with Anonymous Sign-ins enabled and real-device UX observation.
 
-### 3. Anonymous Upgrade Preserves Membership (AUTH-06)
+### 3. Membership Row Created in DB
 
-**Test:** From anonymous session, tap "Sin cuenta" pill or "Agregar email" banner CTA. Enter real email, submit. Verify confirmation email arrives. Click confirmation link.
-**Expected:** Toast confirms email sent. After clicking link, pill/banner disappear. SQL query confirms `trip_members` row unchanged.
-**Why human:** Requires live Supabase anonymous-to-permanent upgrade flow, real email delivery, and DB inspection.
+**Test:** After Step 2, run in Supabase Dashboard SQL Editor: `SELECT user_id, role FROM public.trip_members WHERE trip_id='11111111-1111-1111-1111-111111111111' ORDER BY joined_at DESC LIMIT 5;`
+**Expected:** New row with anonymous `user_id` (is_anonymous = true) and `role = 'member'`.
+**Why human:** Requires live anonymous sign-in against real Supabase project.
 
-### 4. Supabase Dashboard Configuration
+### 4. Pill Is Inert (D-11)
 
-**Test:** Verify in Supabase Dashboard: (a) Authentication → Providers → Anonymous is Enabled, (b) Authentication → Email Templates → Email OTP Expiration is 900, (c) Authentication → Email Templates → Magic Link subject contains `{{ .Token }}`, (d) Storage → bucket `trip-documents` exists and is private.
-**Expected:** All four checks pass.
-**Why human:** Remote Supabase Auth/Storage configuration cannot be queried via code.
+**Test:** Tap the 'Sin cuenta' pill.
+**Expected:** Nothing opens — no upgrade sheet, no state change. Pill is a static indicator.
+**Why human:** Tap behavior requires a real device.
 
-### 5. GitHub Actions Keep-Alive Manual Run (INFRA-05)
+### 5. Session Persists Across Browser Restarts — AUTH-03
 
-**Test:** Run `gh workflow run keep-alive.yml --repo JuanaCinthiaNava/SharedTrip` then `gh run view {run-id} --log`.
-**Expected:** Conclusion is `success`; curl log shows HTTP 200 response from Supabase REST endpoint.
-**Why human:** Requires GitHub authentication and live cron execution.
+**Test:** Force-quit Safari, reopen, navigate to `/t/11111111-.../docs`.
+**Expected:** Still inside trip; not bounced to `/`.
+**Why human:** Cookie persistence across force-quit requires a real device.
 
-### 6. Production Manifest Redeploy
+### 6. Sign Out Returns to Code-Entry Screen — AUTH-04
 
-**Test:** Run `vercel --prod` or push to `main` to trigger a fresh deployment. Verify `https://sharedtrip.vercel.app/manifest.webmanifest` returns HTTP 200 with `Content-Type: application/manifest+json`.
-**Expected:** Valid JSON with `{"name":"SharedTrip","lang":"es","display":"standalone",...}`.
-**Why human:** Deployment command requires Vercel auth; fix requires the developer to trigger a redeploy.
+**Test:** Perfil tab -> 'Cerrar sesión' -> confirm.
+**Expected:** Returns to `/` showing the `InviteCodeForm` (code input, not email).
+**Why human:** Requires live session and device.
+
+### 7. Unknown Code Error Path
+
+**Test:** Type `NOPE-9999`, tap submit.
+**Expected:** Redirected to `/` with Spanish toast 'Este link de invitación no es válido…'; no membership row created.
+**Why human:** Requires live RPC returning NULL for unknown code.
+
+### 8. Malformed Code Inline Validation
+
+**Test:** Type `hello` (no hyphen), tap submit.
+**Expected:** Inline error 'Revisa el código: formato como EJEM-AB12.' under the field; no navigation, no network request.
+**Why human:** Client-side Zod behavior requires browser to confirm no-network short-circuit.
+
+### 9. Code-in-URL Fallback
+
+**Test:** Sign out, navigate directly to `https://{domain}/join/test-ab12`.
+**Expected:** Same result as happy path — anon join + land at `/t/11111111-.../docs`.
+**Why human:** Requires live deployment and device.
+
+### 10. GitHub Actions Keep-Alive
+
+**Test:** `gh workflow run keep-alive.yml` then `gh run view {id} --log`.
+**Expected:** Conclusion `success`; curl log shows HTTP 200 from Supabase REST endpoint.
+**Why human:** Requires GitHub auth and live workflow.
+
+### 11. Production Manifest
+
+**Test:** After redeploy, GET `https://sharedtrip.vercel.app/manifest.webmanifest`.
+**Expected:** HTTP 200, `Content-Type: application/manifest+json`, JSON contains `name: 'SharedTrip'`, `lang: 'es'`, `display: 'standalone'`.
+**Why human:** Requires prod redeploy to serve updated build.
 
 ---
 
 ### Gaps Summary
 
-No hard BLOCKERS found. All code artifacts exist, are substantive, and are wired correctly. The phase goal is achievable — the implementation is complete.
+No BLOCKERS. All code artifacts exist, are substantive, and are fully wired. Plans 08+09 are complete:
 
-**Two items prevent full PASS status:**
+- The typed-invite-code data layer (Plan 08) is live in Supabase — confirmed by the human checkpoint with 4/4 SQL verification queries.
+- The entry UI slice (Plan 09) is complete — `InviteCodeForm`, `joinTripByCode`, `/join/[code]` route, magic-link removal, banner gating, pill staticification all verified in code; build green, 50/50 tests pass, tsc exits 0.
+- AUTH-01, AUTH-02, AUTH-06 correctly absent — deferred to Phase 6 per REQUIREMENTS.md.
 
-1. **Manifest 404 on production** — The route builds correctly locally (confirmed via `.next/server/app/manifest.webmanifest.meta`). Production is serving a stale deployment. A `vercel --prod` redeploy will resolve this. This is a deployment execution gap, not a code gap.
-
-2. **Human device testing** — SC-2 (magic link), SC-3 (anonymous join), and SC-4 (upgrade) require live Supabase configuration verification and real iPhone testing that cannot be automated.
-
-**Minor documentation deviation:** ROADMAP.md Progress Table still shows `4/5 | In Progress` despite `01-05-PLAN.md` being marked complete in the Plans checklist above it. Should be updated to `5/5 | Complete`.
-
-**Minor INFRA-07 deviation:** One hardcoded Spanish string (`"Volver al inicio"`) exists in `src/app/auth/check-email/page.tsx:42`. This is the only instance and is a non-critical back-navigation link. Recommend adding `es.auth.backToHome` key.
+The phase is blocked only on real-device + production confirmation (11 human verification items above). No code gaps remain.
 
 ---
 
-*Verified: 2026-05-30T01:00:00Z*
+*Verified: 2026-06-03T20:00:00Z*
 *Verifier: Claude (gsd-verifier)*
+*Re-verification: Yes — initial verification covered Plans 01-01..07; this re-verification covers Plans 08+09 (re-scope to typed invite-code entry)*
