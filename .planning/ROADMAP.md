@@ -47,7 +47,7 @@ Plans:
 
 - [x] 01-02-PLAN.md — Database schema (6 tables + RLS + is_trip_member + storage RLS) + profile autocreate trigger + seed test trip + GitHub Actions keep-alive cron
 - [x] 01-03-PLAN.md — Magic link auth vertical slice (@supabase/ssr factories + middleware + signInWithOtp Server Action + /auth/callback + Resend SMTP)
-- [ ] 01-09-PLAN.md — Re-scope entry slice: typed invite-code welcome form + joinTripByCode + /join/[code] route; remove magic-link (sendMagicLink, /auth/callback, /auth/check-email, MagicLinkForm); defer D-12 email banner (AUTH-05)
+- [x] 01-09-PLAN.md — Re-scope entry slice: typed invite-code welcome form + joinTripByCode + /join/[code] route; remove magic-link (sendMagicLink, /auth/callback, /auth/check-email, MagicLinkForm); defer D-12 email banner (AUTH-05) — code complete 2026-06-03; real-device UAT PENDING
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 8/9 | 01-08 complete; 01-09 pending | 2026-06-01 |
+| 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
 | 2. Trip + Member Management | 0/? | Not started | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 01
-current_plan: 1
-status: executing
+current_plan: 9
+status: human_needed
 last_updated: "2026-06-03T00:00:00Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 9
-  completed_plans: 7
-  percent: 0
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State: SharedTrip
@@ -38,7 +38,7 @@ Plan: 1 of 9
 **Current phase:** 01
 **Current plan:** 1
 **Status:** Executing Phase 01
-**Progress:** [██████████] 100% (Phase 1 plans complete — automated verification passed, human UAT pending)
+**Progress:** [██████████] 100% (All 9 Phase 1 plans complete — code verified; human UAT pending)
 
 ```
 [ ] Phase 1: Foundation + Auth  ← human_needed (see 01-VERIFICATION.md)
@@ -64,14 +64,20 @@ Plan: 1 of 9
 - PWA manifest: code correct, builds correctly; production 404 needs redeploy (not a code bug)
 - Keep-alive: `*/5 * * * *` cron, correct secret usage
 
-**What requires human device testing:**
+**What requires human device testing (PENDING — DEFERRED from 01-09 checkpoint):**
 
-1. Typed invite-code entry end-to-end (AUTH-05 re-scoped) — real iPhone, typed code TEST-AB12
-2. Anonymous session persistence (AUTH-03) — Safari restart test
-3. Sign out (AUTH-04) — Cerrar sesión returns to / (code-entry welcome screen)
-4. Unknown code error path — NOPE-9999 → invalidJoinToken toast
-5. Code-in-URL fallback — /join/test-ab12 → anon join + land in trip
-6. Production manifest.webmanifest: requires `vercel --prod --force` redeploy
+0. Deploy: `vercel --prod --force` (prod does NOT auto-deploy on push)
+1. Typed invite-code happy path (AUTH-05 re-scoped) — real iPhone, typed code TEST-AB12 → anon join → land in trip, no email, no banner
+2. DB membership check — new trip_members row with anonymous user_id
+3. Pill is inert — tap "Sin cuenta" pill, nothing opens
+4. Anonymous session persistence (AUTH-03) — force-quit Safari, reopen, still inside trip
+5. Sign out (AUTH-04) — Cerrar sesión returns to / (code-entry welcome screen)
+6. Unknown code error path — NOPE-9999 → invalidJoinToken toast, no membership
+7. Malformed code inline validation — 'hello' → es.entry.invalidFormat inline, no navigation
+8. Code-in-URL fallback — /join/test-ab12 → anon join + land in trip
+9. Production manifest.webmanifest — verify installability after redeploy
+
+Full 8-step test script: `.planning/phases/01-foundation-auth/01-09-SUMMARY.md` (Checkpoint: DEFERRED section)
 
 **Minor deviations (non-blocking):**
 
@@ -162,7 +168,7 @@ Plan: 1 of 9
 - [x] Set up Supabase project (DB + Auth + Storage + Realtime enabled)
 - [x] Configure Supabase CLI for local development
 - [x] Run Phase 1 planning: `/gsd:plan-phase 1`
-- [ ] Complete Phase 1 human UAT: typed code entry (AUTH-05 re-scoped) on real iPhone — run `vercel --prod --force` first, then test TEST-AB12 entry + session persistence + sign out
+- [ ] Complete Phase 1 human UAT: run `vercel --prod --force` first, then 8-step iPhone test (TEST-AB12 entry, session persistence, sign out, error paths, URL fallback) — see 01-09-SUMMARY.md for full script
 - [ ] Confirm no email/magic-link UAT needed (AUTH-01/02/06 deferred to Phase 6)
 - [x] Fix `src/app/auth/check-email/page.tsx:42`: file deleted (magic-link removed from v1, Plan 09)
 
@@ -174,7 +180,7 @@ None active. (01-08 human-action checkpoint cleared 2026-06-03: migration 202605
 
 ## Session Continuity
 
-**To resume:** Plan 01-09 Tasks 1-3 complete (commits e210d1b, 94e7e5d, 5082d90). Checkpoint: deploy via `vercel --prod --force` then run AUTH-05 re-scoped UAT on a real iPhone. After human-verify, Phase 1 re-scope is fully wired end-to-end.
+**To resume:** All 9 Phase 1 plans complete (01-09 finalized 2026-06-03). Remaining action: deploy via `vercel --prod --force` then run AUTH-05 re-scoped UAT on a real iPhone (8-step script in 01-09-SUMMARY.md). After human UAT passes, Phase 1 is fully done and Phase 2 planning can begin.
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
