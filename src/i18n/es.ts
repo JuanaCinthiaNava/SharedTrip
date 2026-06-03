@@ -73,7 +73,7 @@ export const es = {
   errors: {
     invalidLink: 'Este enlace ya expiró o no es válido. Solicita uno nuevo.',
     sendLinkFailed: 'No pudimos enviarte el enlace. Verifica tu correo e intenta de nuevo.',
-    invalidJoinToken: 'Este link de invitación no es válido. Pide uno nuevo a quien te invitó.',
+    invalidJoinToken: 'Este código de invitación no es válido. Pide el código correcto a quien te invitó.',
     sessionExpired: 'Tu sesión expiró. Ingresa de nuevo.',
     genericNetwork: 'Error de conexión. Verifica tu red e intenta de nuevo.',
   },
