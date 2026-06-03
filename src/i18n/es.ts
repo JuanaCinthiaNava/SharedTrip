@@ -1,9 +1,19 @@
 // SharedTrip — Spanish UI dictionary (INFRA-07)
 // All user-visible strings live here. Never hardcode Spanish text in JSX components.
 // Extended by Plan 04 with tabs, profile, tripSwitcher namespaces.
-// Plan 05 will add the anon namespace.
+// Plan 05 added the anon namespace.
+// Plan 09 adds the entry namespace (typed invite-code entry, replaces magic-link).
 
 export const es = {
+  // Invite-code entry screen (Plan 09 — replaces magic-link welcome screen)
+  entry: {
+    heading: 'Ingresa tu código de viaje',
+    subheading: 'Pídele el código a quien te invitó y escríbelo aquí.',
+    codeLabel: 'Código de invitación',
+    codePlaceholder: 'EJEM-AB12',
+    submitCta: 'Entrar al viaje',
+    invalidFormat: 'Revisa el código: formato como EJEM-AB12.',
+  },
   auth: {
     welcomeHeading: 'Bienvenido a SharedTrip',
     welcomeSubheading: 'Tu bóveda de viaje — boletos, itinerario y más, siempre a la mano.',
