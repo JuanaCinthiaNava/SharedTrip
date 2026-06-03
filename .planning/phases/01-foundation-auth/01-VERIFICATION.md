@@ -1,7 +1,9 @@
 ---
 phase: 01-foundation-auth
 verified: 2026-06-03T20:00:00Z
-status: human_needed
+status: passed
+human_verification_completed: 2026-06-02
+human_verification_result: "11/11 UAT items passed on real iPhone + Supabase Dashboard (approved); 2 UAT-driven fixes applied — cccf9c1, e30b3bc"
 score: 13/13 must-haves verified
 overrides_applied: 0
 re_verification:

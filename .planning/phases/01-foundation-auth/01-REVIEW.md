@@ -101,7 +101,7 @@ setting non-role columns in the update. For v1, `ignoreDuplicates: true` is the 
 
 ### WR-01: `getUser()` error silently swallowed — network failure treated as "no session"
 
-**Status:** RESOLVED — commit `22d9a05` (fix(01): WR-01 distinguish getUser() error from genuine no-session)
+**Status:** REVERTED — fix `22d9a05` was reverted by `cccf9c1`. The WR-01 guard (`if getUserErr.status !== 0 return genericNetwork`) caused a UAT regression: after sign-out, `getUser()` returns `AuthSessionMissingError` (status 400) — not a network failure but the signal to mint a fresh anonymous session — so the guard blocked all re-joins after sign-out. The original fall-through behavior was restored; WR-01's legitimate intent (don't mask a real network outage) is still met because `signInAnonymously()` itself fails and returns `genericNetwork` on a true outage. NET: WR-01 accepted as won't-fix (the guard's harm outweighed its benefit).
 
 **File:** `src/actions/members.ts:46`
 **Issue:** The destructuring `const { data: { user: existingUser } } = await supabase.auth.getUser()`

@@ -1,14 +1,19 @@
 ---
-status: diagnosed
+status: superseded
 phase: 01-foundation-auth
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md, 01-04-SUMMARY.md, 01-05-SUMMARY.md]
 started: 2026-06-01T18:51:05Z
-updated: 2026-06-01T19:08:00Z
+updated: 2026-06-02T00:00:00Z
+superseded_by: 01-HUMAN-UAT.md
 ---
 
 ## Current Test
 
-[testing paused — 7 items blocked, 2 issues to diagnose]
+[SUPERSEDED 2026-06-02] This UAT predates the 2026-06-01 re-scope. Its blocked tests and
+2 diagnosed issues were all caused by the magic-link entry path (Test 3 magic link + the
+old token-based anonymous join) — that path was REMOVED from v1 by the re-scope. Entry is
+now a typed invite code, re-verified end-to-end on a real iPhone (11/11 passed) in
+`01-HUMAN-UAT.md`. No action remains here; these items are obsolete, not outstanding.
 
 ## Tests
 
