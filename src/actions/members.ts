@@ -43,7 +43,15 @@ export async function joinTripByCode(
   const supabase = await createClient()
 
   // Step 1: Ensure we have a user session
-  const { data: { user: existingUser } } = await supabase.auth.getUser()
+  const { data: { user: existingUser }, error: getUserErr } = await supabase.auth.getUser()
+
+  // A real auth/network error (non-zero status) means getUser() itself failed — do NOT fall
+  // through to signInAnonymously(), which would create a spurious anonymous account.
+  // Supabase returns { data: { user: null }, error: null } for a genuine "no session",
+  // so status === 0 (or null) with error === null is the normal unauthenticated path.
+  if (getUserErr && getUserErr.status !== 0) {
+    return { tripId: null, error: es.errors.genericNetwork }
+  }
 
   let userId = existingUser?.id
 
