@@ -5,7 +5,7 @@ milestone_name: milestone
 current_phase: 01
 current_plan: 1
 status: executing
-last_updated: "2026-06-03T01:10:16.514Z"
+last_updated: "2026-06-03T01:24:13.020Z"
 progress:
   total_phases: 6
   completed_phases: 0
@@ -16,7 +16,7 @@ progress:
 
 # Project State: SharedTrip
 
-**Last updated:** 2026-05-30
+**Last updated:** 2026-06-02
 **Milestone:** v1 — before next trip (deadline: < 1 month from 2026-05-29)
 
 ---
@@ -34,10 +34,10 @@ progress:
 ## Current Position
 
 Phase: 01 (foundation-auth) — EXECUTING
-Plan: 1 of 7
+Plan: 1 of 9
 **Current phase:** 01
 **Current plan:** 1
-**Status:** Ready to execute
+**Status:** Executing Phase 01
 **Progress:** [██████████] 100% (Phase 1 plans complete — automated verification passed, human UAT pending)
 
 ```
@@ -120,6 +120,7 @@ Plan: 1 of 7
 | getUser() only in middleware, never getSession() | getUser() revalidates JWT server-to-server; getSession() reads stale local cookie — security anti-pattern |
 | T-03-06 open-redirect guard in /auth/callback | Validates ?next param starts with / and not // before redirect |
 | **Entry = typed invite code (anonymous), not magic-link** (2026-06-01) | v1 entry is a short hybrid code (`MARR-4F9K`) typed by the user → anonymous join → set name. Magic-link/email dropped from v1: no domain (Resend `onboarding@resend.dev` only reaches the account owner) + Microsoft Safe Links consumes one-time links. Email/recovery → Phase 6. See `.planning/notes/entry-model-invite-code.md` |
+| **trips.invite_code text NOT NULL UNIQUE** (2026-06-02, Plan 01-08) | Added alongside vestigial invite_token. Resolver get_trip_id_by_invite_code(text) SECURITY DEFINER normalizes input via upper(trim()); returns NULL on miss. invite_token retained to avoid editing shipped migrations. Seed trip resolves from 'TEST-AB12'. |
 
 ### Roadmap Evolution
 
@@ -165,7 +166,7 @@ Plan: 1 of 7
 
 ### Blockers
 
-None — all code is complete. Human UAT and minor cleanup tasks remain.
+- **01-08 checkpoint (human-action):** Migration 20260530000006_invite_code.sql committed but NOT yet applied to live Supabase. Must apply before Plan 01-09 entry UI can resolve invite codes. See checkpoint state in 01-08 execution.
 
 ---
 
