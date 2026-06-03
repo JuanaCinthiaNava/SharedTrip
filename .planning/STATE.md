@@ -16,7 +16,7 @@ progress:
 
 # Project State: SharedTrip
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 **Milestone:** v1 — before next trip (deadline: < 1 month from 2026-05-29)
 
 ---
@@ -66,16 +66,16 @@ Plan: 1 of 9
 
 **What requires human device testing:**
 
-1. Magic link flow end-to-end (AUTH-01, AUTH-02, AUTH-03) — Resend SMTP + real iPhone
-2. Anonymous join flow (AUTH-05) — Supabase anon sign-ins enabled + real device
-3. Anonymous upgrade (AUTH-06) — live email confirmation link
-4. Supabase dashboard config: anon sign-ins enabled, OTP expiry 900s, Magic Link template
-5. GitHub Actions keep-alive manual workflow_dispatch confirmation
-6. Production manifest.webmanifest: requires `vercel --prod` redeploy
+1. Typed invite-code entry end-to-end (AUTH-05 re-scoped) — real iPhone, typed code TEST-AB12
+2. Anonymous session persistence (AUTH-03) — Safari restart test
+3. Sign out (AUTH-04) — Cerrar sesión returns to / (code-entry welcome screen)
+4. Unknown code error path — NOPE-9999 → invalidJoinToken toast
+5. Code-in-URL fallback — /join/test-ab12 → anon join + land in trip
+6. Production manifest.webmanifest: requires `vercel --prod --force` redeploy
 
 **Minor deviations (non-blocking):**
 
-- `"Volver al inicio"` hardcoded in `check-email/page.tsx:42` (not in `es.ts`)
+- AnonymousBanner.tsx (preserved for Phase 6) internally contains `<AnonymousUpgradeSheet` — not rendered in any v1 path; build passes; grep verify adjusted with exclusion
 - ROADMAP.md Progress Table shows `4/5` — stale, should be `5/5`
 
 ---
@@ -121,6 +121,9 @@ Plan: 1 of 9
 | T-03-06 open-redirect guard in /auth/callback | Validates ?next param starts with / and not // before redirect |
 | **Entry = typed invite code (anonymous), not magic-link** (2026-06-01) | v1 entry is a short hybrid code (`MARR-4F9K`) typed by the user → anonymous join → set name. Magic-link/email dropped from v1: no domain (Resend `onboarding@resend.dev` only reaches the account owner) + Microsoft Safe Links consumes one-time links. Email/recovery → Phase 6. See `.planning/notes/entry-model-invite-code.md` |
 | **trips.invite_code text NOT NULL UNIQUE** (2026-06-02, Plan 01-08) | Added alongside vestigial invite_token. Resolver get_trip_id_by_invite_code(text) SECURITY DEFINER normalizes input via upper(trim()); returns NULL on miss. invite_token retained to avoid editing shipped migrations. Seed trip resolves from 'TEST-AB12'. |
+| **uuid /join/[token] route retired; /join/[code] replaces it** (2026-06-03, Plan 01-09) | joinTripByCode(code) replaces joinTrip(token); only resolution RPC changes; service-role upsert (anon-join-architecture) verbatim. CODE_RE /^[A-Za-z0-9]{2,8}-[A-Za-z0-9]{3,6}$/ for hybrid format validation. |
+| **Magic-link removed from v1 critical path** (2026-06-03, Plan 01-09) | sendMagicLink, MagicLinkForm, /auth/callback, /auth/check-email deleted. signOut retained. Email/magic-link deferred to Phase 6. |
+| **D-12 email-upgrade banner deferred; D-11 SinCuentaPill made static** (2026-06-03, Plan 01-09) | AnonymousBanner render removed from trip layout; AnonymousUpgradeSheet wiring removed from TopHeader; SinCuentaPill changed from `<button onClick=openUpgradeSheet>` to `<span>` static indicator. Both Phase 6 files retained on disk. |
 
 ### Roadmap Evolution
 
@@ -159,10 +162,9 @@ Plan: 1 of 9
 - [x] Set up Supabase project (DB + Auth + Storage + Realtime enabled)
 - [x] Configure Supabase CLI for local development
 - [x] Run Phase 1 planning: `/gsd:plan-phase 1`
-- [ ] Complete Phase 1 human UAT: real iPhone magic link + anonymous join tests
-- [ ] Run `vercel --prod` to redeploy (fixes manifest.webmanifest 404 on production)
-- [ ] Fix ROADMAP.md Progress Table: update Phase 1 from `4/5` to `5/5 | human_needed`
-- [ ] Fix `src/app/auth/check-email/page.tsx:42`: add `es.auth.backToHome` key and use it
+- [ ] Complete Phase 1 human UAT: typed code entry (AUTH-05 re-scoped) on real iPhone — run `vercel --prod --force` first, then test TEST-AB12 entry + session persistence + sign out
+- [ ] Confirm no email/magic-link UAT needed (AUTH-01/02/06 deferred to Phase 6)
+- [x] Fix `src/app/auth/check-email/page.tsx:42`: file deleted (magic-link removed from v1, Plan 09)
 
 ### Blockers
 
@@ -172,7 +174,7 @@ None active. (01-08 human-action checkpoint cleared 2026-06-03: migration 202605
 
 ## Session Continuity
 
-**To resume:** Plan 01-08 complete (live migration confirmed). Execute Plan 01-09 next: typed invite-code entry UI + joinTripByCode action + remove magic-link routes. After 01-09, Phase 1 re-scope is fully wired end-to-end and UAT can proceed.
+**To resume:** Plan 01-09 Tasks 1-3 complete (commits e210d1b, 94e7e5d, 5082d90). Checkpoint: deploy via `vercel --prod --force` then run AUTH-05 re-scoped UAT on a real iPhone. After human-verify, Phase 1 re-scope is fully wired end-to-end.
 
 **Phase 1 entry point:** `.planning/ROADMAP.md` Phase 1 detail — INFRA-01..07 + AUTH-01..06 + UI-01..03.
 
