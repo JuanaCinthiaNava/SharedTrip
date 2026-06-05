@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: trip-member-management
-status: draft
+status: approved
 shadcn_initialized: true
 preset: base-nova (existing — initialized Phase 1)
 created: 2026-06-05
+reviewed_at: 2026-06-05
 ---
 
 # Phase 2 — UI Design Contract
