@@ -28,9 +28,9 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 
 ### Trip Management
 
-- [ ] **TRIP-01**: Usuario autenticado puede crear un trip con nombre, fechas (inicio/fin) y descripción opcional
-- [ ] **TRIP-02**: Creador genera link de invitación compartible (con token único, sin expiración o expiración configurable)
-- [ ] **TRIP-03**: Cualquiera con el link puede unirse al trip (después de auth o anonymous join)
+- [x] **TRIP-01**: Usuario autenticado puede crear un trip con nombre, fechas (inicio/fin) y descripción opcional
+- [x] **TRIP-02**: Creador genera link de invitación compartible (con token único, sin expiración o expiración configurable)
+- [x] **TRIP-03**: Cualquiera con el link puede unirse al trip (después de auth o anonymous join)
 - [ ] **TRIP-04**: Usuario puede ver la lista de trips a los que pertenece
 - [ ] **TRIP-05**: Miembros del trip pueden ver la lista de los demás miembros (nombre, avatar/inicial)
 - [ ] **TRIP-06**: Creador puede remover miembros del trip
@@ -74,7 +74,7 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 - [x] **UI-02**: Estilo visual juvenil y vibrante — paleta de colores saturada, ilustraciones/iconos cálidos, tipografía moderna (referencia: Spotify, Duolingo)
 - [x] **UI-03**: Responsive móvil-first, funcional desde 320px hasta desktop
 - [ ] **UI-04**: Estados de carga claros (skeletons), errores con mensaje accionable, vacíos con guía hacia siguiente acción
-- [ ] **UI-05**: Fechas formateadas con `Intl.DateTimeFormat('es-MX')` consistentemente
+- [x] **UI-05**: Fechas formateadas con `Intl.DateTimeFormat('es-MX')` consistentemente
 
 ## v1.5 Requirements
 
@@ -144,16 +144,16 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | UI-01 | Phase 1: Foundation + Auth | Complete |
 | UI-02 | Phase 1: Foundation + Auth | Complete |
 | UI-03 | Phase 1: Foundation + Auth | Complete |
-| TRIP-01 | Phase 2: Trip + Member Management | Pending |
-| TRIP-02 | Phase 2: Trip + Member Management | Pending |
-| TRIP-03 | Phase 2: Trip + Member Management | Pending |
+| TRIP-01 | Phase 2: Trip + Member Management | Complete |
+| TRIP-02 | Phase 2: Trip + Member Management | Complete |
+| TRIP-03 | Phase 2: Trip + Member Management | Complete |
 | TRIP-04 | Phase 2: Trip + Member Management | Pending |
 | TRIP-05 | Phase 2: Trip + Member Management | Pending |
 | TRIP-06 | Phase 2: Trip + Member Management | Pending |
 | TRIP-07 | Phase 2: Trip + Member Management | Pending |
 | TRIP-08 | Phase 2: Trip + Member Management | Pending |
 | TRIP-09 | Phase 2: Trip + Member Management | Pending |
-| UI-05 | Phase 2: Trip + Member Management | Pending |
+| UI-05 | Phase 2: Trip + Member Management | Complete |
 | DOCS-01 | Phase 3: Document Vault + PWA Offline | Pending |
 | DOCS-02 | Phase 3: Document Vault + PWA Offline | Pending |
 | DOCS-03 | Phase 3: Document Vault + PWA Offline | Pending |

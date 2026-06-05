@@ -5,12 +5,12 @@ milestone_name: milestone
 current_phase: 02
 current_plan: 1
 status: executing
-last_updated: "2026-06-05T19:26:01.929Z"
+last_updated: "2026-06-05T19:42:22.134Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 10
+  completed_plans: 11
   percent: 17
 ---
 
@@ -34,11 +34,11 @@ progress:
 ## Current Position
 
 Phase: 02 (Trip + Member Management) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 **Current phase:** 02
 **Current plan:** 1
 **Status:** Ready to execute
-**Progress:** [███████░░░] 71%
+**Progress:** [████████░░] 79%
 
 ```
 [ ] Phase 1: Foundation + Auth  ← human_needed (see 01-VERIFICATION.md)
@@ -132,6 +132,9 @@ Full 8-step test script: `.planning/phases/01-foundation-auth/01-09-SUMMARY.md` 
 | **D-12 email-upgrade banner deferred; D-11 SinCuentaPill made static** (2026-06-03, Plan 01-09) | AnonymousBanner render removed from trip layout; AnonymousUpgradeSheet wiring removed from TopHeader; SinCuentaPill changed from `<button onClick=openUpgradeSheet>` to `<span>` static indicator. Both Phase 6 files retained on disk. |
 | **generateInviteCode uses SUFFIX_ALPHABET (D-06, 2026-06-05, Plan 02-01)** | Excludes O/I/L/0/1 for visual unambiguity. Math.random() acceptable — display code, not secret (A1). Prefix = first ≤4 alpha chars of name, padded to ≥2. Caller retries on Postgres 23505. |
 | **parseLocalDate/toLocalDateString (D-18, 2026-06-05, Plan 02-01)** | Local-midnight Date construction guards es-MX UTC-6 off-by-one. NEVER new Date(str) or .toISOString() for date columns. Single source of truth in src/lib/utils/date-format.ts. |
+| **/trips/nueva (GET) + /trips/new (POST) route split (2026-06-05, Plan 02-02)** | Next.js disallows page.tsx + route.ts in the same directory segment. POST handler at /trips/new; create page at /trips/nueva. Welcome screen link updated accordingly. |
+| **z.custom<DateRange> for react-day-picker field in Zod schema (2026-06-05, Plan 02-02)** | DateRange.from is `Date | undefined` (required field), not `from?: Date` (optional). z.object with optional from creates a type mismatch. z.custom<DateRange | undefined>() accepts the exact type without narrowing. |
+| **buttonVariants+Link instead of Button asChild (2026-06-05, Plan 02-02)** | @base-ui/react/button has no Radix Slot/asChild pattern. For styled navigation links, apply buttonVariants() className to Next.js <Link> directly. |
 
 ### Roadmap Evolution
 
