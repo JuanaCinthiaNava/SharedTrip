@@ -88,7 +88,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 / Wave 1)*
 - [ ] 02-04-PLAN.md — Member management slice: removeMember + leaveTrip + inline AlertDialog confirms
-- [ ] 02-05-PLAN.md — Trip edit + delete slice: updateTrip/deleteTrip + EditTripSheet (CreateTripForm reuse) + type-name-to-delete dialog
+- [x] 02-05-PLAN.md — Trip edit + delete slice: updateTrip/deleteTrip + EditTripSheet (CreateTripForm reuse) + type-name-to-delete dialog
 
 **UI hint**: yes
 
@@ -172,7 +172,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
-| 2. Trip + Member Management | 3/5 | In Progress|  |
+| 2. Trip + Member Management | 4/5 | In Progress|  |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |

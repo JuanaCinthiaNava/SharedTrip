@@ -35,8 +35,8 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 - [x] **TRIP-05**: Miembros del trip pueden ver la lista de los demás miembros (nombre, avatar/inicial)
 - [ ] **TRIP-06**: Creador puede remover miembros del trip
 - [ ] **TRIP-07**: Cualquier miembro puede salir del trip (excepto el creador, que debe transferir o eliminar el trip)
-- [ ] **TRIP-08**: Creador puede editar nombre, fechas y descripción del trip
-- [ ] **TRIP-09**: Creador puede archivar/eliminar un trip
+- [x] **TRIP-08**: Creador puede editar nombre, fechas y descripción del trip
+- [x] **TRIP-09**: Creador puede archivar/eliminar un trip
 
 ### Document Vault (Core Value)
 
@@ -151,8 +151,8 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | TRIP-05 | Phase 2: Trip + Member Management | Complete |
 | TRIP-06 | Phase 2: Trip + Member Management | Pending |
 | TRIP-07 | Phase 2: Trip + Member Management | Pending |
-| TRIP-08 | Phase 2: Trip + Member Management | Pending |
-| TRIP-09 | Phase 2: Trip + Member Management | Pending |
+| TRIP-08 | Phase 2: Trip + Member Management | Complete |
+| TRIP-09 | Phase 2: Trip + Member Management | Complete |
 | UI-05 | Phase 2: Trip + Member Management | Complete |
 | DOCS-01 | Phase 3: Document Vault + PWA Offline | Pending |
 | DOCS-02 | Phase 3: Document Vault + PWA Offline | Pending |
