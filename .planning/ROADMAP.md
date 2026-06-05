@@ -84,7 +84,7 @@ Plans:
 - [x] 02-02-PLAN.md — Create-trip slice: two-choice welcome + /trips/new route + createTrip service-role action + invite_code + creator-as-admin (lands creator inside the trip)
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 02-03-PLAN.md — Member-list + invite-share slice: Gente member list + role badges + invite card copy + wired trip switcher create button
+- [x] 02-03-PLAN.md — Member-list + invite-share slice: Gente member list + role badges + invite card copy + wired trip switcher create button
 
 **Wave 3** *(blocked on Wave 2 / Wave 1)*
 - [ ] 02-04-PLAN.md — Member management slice: removeMember + leaveTrip + inline AlertDialog confirms
@@ -172,7 +172,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
-| 2. Trip + Member Management | 2/5 | In Progress|  |
+| 2. Trip + Member Management | 3/5 | In Progress|  |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |

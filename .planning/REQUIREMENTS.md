@@ -31,8 +31,8 @@ Requirements para el primer release usable antes del próximo viaje del usuario 
 - [x] **TRIP-01**: Usuario autenticado puede crear un trip con nombre, fechas (inicio/fin) y descripción opcional
 - [x] **TRIP-02**: Creador genera link de invitación compartible (con token único, sin expiración o expiración configurable)
 - [x] **TRIP-03**: Cualquiera con el link puede unirse al trip (después de auth o anonymous join)
-- [ ] **TRIP-04**: Usuario puede ver la lista de trips a los que pertenece
-- [ ] **TRIP-05**: Miembros del trip pueden ver la lista de los demás miembros (nombre, avatar/inicial)
+- [x] **TRIP-04**: Usuario puede ver la lista de trips a los que pertenece
+- [x] **TRIP-05**: Miembros del trip pueden ver la lista de los demás miembros (nombre, avatar/inicial)
 - [ ] **TRIP-06**: Creador puede remover miembros del trip
 - [ ] **TRIP-07**: Cualquier miembro puede salir del trip (excepto el creador, que debe transferir o eliminar el trip)
 - [ ] **TRIP-08**: Creador puede editar nombre, fechas y descripción del trip
@@ -147,8 +147,8 @@ Mapeo de requisitos a fases. Actualizado tras creación del roadmap.
 | TRIP-01 | Phase 2: Trip + Member Management | Complete |
 | TRIP-02 | Phase 2: Trip + Member Management | Complete |
 | TRIP-03 | Phase 2: Trip + Member Management | Complete |
-| TRIP-04 | Phase 2: Trip + Member Management | Pending |
-| TRIP-05 | Phase 2: Trip + Member Management | Pending |
+| TRIP-04 | Phase 2: Trip + Member Management | Complete |
+| TRIP-05 | Phase 2: Trip + Member Management | Complete |
 | TRIP-06 | Phase 2: Trip + Member Management | Pending |
 | TRIP-07 | Phase 2: Trip + Member Management | Pending |
 | TRIP-08 | Phase 2: Trip + Member Management | Pending |
