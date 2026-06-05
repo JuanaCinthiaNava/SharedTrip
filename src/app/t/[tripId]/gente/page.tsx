@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { InviteCard } from '@/components/members/InviteCard'
 import { MemberList } from '@/components/members/MemberList'
+import { EditTripSheet } from '@/components/trip/EditTripSheet'
 import { es } from '@/i18n/es'
 
 interface GentePageProps {
@@ -25,10 +26,11 @@ export default async function GentePage({ params }: GentePageProps) {
     redirect('/')
   }
 
-  // Fetch trip name, invite_code, and creator — RLS member-gated SELECT
+  // Fetch trip fields — RLS member-gated SELECT
+  // start_date, end_date, description needed to pre-fill EditTripSheet (D-14)
   const { data: trip } = await supabase
     .from('trips')
-    .select('name, invite_code, created_by')
+    .select('name, invite_code, created_by, start_date, end_date, description')
     .eq('id', tripId)
     .single()
 
@@ -55,8 +57,21 @@ export default async function GentePage({ params }: GentePageProps) {
   // Show the member list section only when there are co-members (D-07: invite card IS the empty state)
   const hasCoMembers = members.some((m) => m.user_id !== currentUserId)
 
+  const isCreator = currentUserId === creatorId
+
   return (
     <div className="flex flex-col gap-8 px-4 py-4">
+      {/* Creator-only edit affordance — atop Gente per UI-SPEC §2 / RESEARCH Open Q3 */}
+      {isCreator && (
+        <EditTripSheet
+          tripId={tripId}
+          name={trip.name}
+          startDate={trip.start_date ?? null}
+          endDate={trip.end_date ?? null}
+          description={trip.description ?? null}
+        />
+      )}
+
       {/* D-07: Invite card pinned at top; doubles as empty state when sole member */}
       <InviteCard name={trip.name} code={trip.invite_code} />
 
