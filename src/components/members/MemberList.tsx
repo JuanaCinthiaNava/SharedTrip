@@ -1,8 +1,7 @@
 // MemberList — renders the ordered list of MemberRow components.
 // RSC: receives pre-fetched member data from gente/page.tsx (RSC parent).
-// Passes creatorId and currentUserId down to each MemberRow for badge logic.
-// The actionSlot prop on MemberRow is left empty here — 02-04 will inject
-// Quitar/Salir affordances into MemberRow by extending this component.
+// Passes creatorId, currentUserId, tripId, tripName down to each MemberRow.
+// 02-04: MemberRow now renders inline Quitar/Salir actions via AlertDialog confirms.
 
 import { MemberRow } from './MemberRow'
 
@@ -27,6 +26,8 @@ export function MemberList({
   members,
   currentUserId,
   creatorId,
+  tripId,
+  tripName,
 }: MemberListProps) {
   return (
     <div className="flex flex-col">
@@ -38,7 +39,10 @@ export function MemberList({
           avatarSeed={member.profiles?.avatar_seed}
           isCreator={member.user_id === creatorId}
           isCurrentUser={member.user_id === currentUserId}
-          // actionSlot intentionally omitted — 02-04 wires Quitar/Salir
+          creatorId={creatorId}
+          currentUserId={currentUserId}
+          tripId={tripId}
+          tripName={tripName}
         />
       ))}
     </div>
