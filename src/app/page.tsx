@@ -4,14 +4,18 @@
 // pure welcome UI with the code-entry form is shown.
 // InviteCodeForm is a 'use client' component that validates the code and navigates to /join/{code}.
 // Plan 05: ErrorToast reads the ?error= search param and shows a Sonner toast.
-// All text via es.entry — zero hardcoded Spanish strings here.
+// Plan 02-02: Two-choice welcome (D-01) — "Ya me invitaron" (primary) + "Quiero crear" (secondary).
+// All text via es.* — zero hardcoded Spanish strings here.
 
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Wordmark } from '@/components/common/Wordmark'
 import { InviteCodeForm } from '@/components/auth/InviteCodeForm'
 import { ErrorToast } from '@/components/common/ErrorToast'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { es } from '@/i18n/es'
 
 export default async function WelcomePage() {
@@ -57,10 +61,26 @@ export default async function WelcomePage() {
         </p>
       </div>
 
-      {/* Bottom third: sticky CTA — InviteCodeForm (Plan 09 invite-code entry) */}
+      {/* Bottom third: sticky CTA area */}
       {/* UI-SPEC focal-point: sticky bottom-6 so the form stays visible above the soft keyboard */}
-      <div className="sticky bottom-6 mt-auto pb-0">
+      <div className="sticky bottom-6 mt-auto pb-0 flex flex-col gap-4">
+        {/* Primary: invite-code join form (unchanged from Plan 09) */}
         <InviteCodeForm />
+
+        {/* "o" divider — two border rules flanking a muted label (UI-SPEC §1, D-01) */}
+        <div className="flex items-center gap-3">
+          <span className="flex-1 border-t border-border" />
+          <span className="text-sm text-muted-foreground select-none">o</span>
+          <span className="flex-1 border-t border-border" />
+        </div>
+
+        {/* Secondary: create trip affordance — outline link (NOT solid-coral, must not outweigh join) */}
+        <Link
+          href="/trips/nueva"
+          className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
+        >
+          {es.trip.createCta}
+        </Link>
       </div>
     </main>
   )
