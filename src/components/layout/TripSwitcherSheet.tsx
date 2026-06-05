@@ -1,7 +1,7 @@
 'use client'
 
 // TripSwitcherSheet — bottom sheet listing user's trips for switching.
-// Renders one row per trip (Link) + a non-functional "+ Crear nuevo viaje" row (Phase 2 wires creation).
+// Renders one row per trip (Link) + a wired "+ Crear nuevo viaje" entry (D-05, Phase 2).
 // If no trips: shows EmptyState with es.tripSwitcher.emptyHeading + emptyBody.
 
 import Link from 'next/link'
@@ -60,15 +60,15 @@ export function TripSwitcherSheet({ tripId, tripName, trips }: TripSwitcherSheet
           </div>
         )}
 
-        {/* Non-functional entry — Phase 2 wires trip creation */}
+        {/* D-05: Wired create entry — navigates to the create trip screen (/trips/nueva) */}
         <div className="px-4 pb-4 pt-2 border-t border-border">
-          <button
-            className="w-full py-3 text-base text-fg-muted text-left cursor-not-allowed opacity-60"
-            disabled
+          <Link
+            href="/trips/nueva"
+            className="block w-full py-3 text-base text-fg text-left hover:text-primary transition-colors"
             aria-label={es.tripSwitcher.createCta}
           >
             {es.tripSwitcher.createCta}
-          </button>
+          </Link>
         </div>
       </SheetContent>
     </Sheet>
