@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 
+import { toast } from 'sonner'
 import { es } from '@/i18n/es'
 import { toLocalDateString } from '@/lib/utils/date-format'
 import { parseLocalDate } from '@/lib/utils/date-format'
@@ -120,16 +121,24 @@ export function CreateTripForm({ defaultValues, onSubmit: onSubmitOverride }: Cr
       }
 
       // Create mode: POST to /trips/new route handler which sets the session cookie + redirects
-      const res = await fetch('/trips/new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: values.name, startDate, endDate, description }),
-        redirect: 'follow',
-      })
+      try {
+        const res = await fetch('/trips/new', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: values.name, startDate, endDate, description }),
+          redirect: 'follow',
+        })
 
-      if (res.ok || res.redirected) {
-        // The route handler returns a redirect — follow it by navigating to the final URL
-        router.push(res.url)
+        if (res.ok || res.redirected) {
+          // The route handler returns a redirect — follow it by navigating to the final URL
+          router.push(res.url)
+        } else {
+          // Non-redirect error response — surface it instead of a silent dead-end (WR-06)
+          toast.error(es.errors.genericNetwork)
+        }
+      } catch {
+        // Network failure (e.g. offline) — fetch rejected (WR-06)
+        toast.error(es.errors.genericNetwork)
       }
     })
   }
