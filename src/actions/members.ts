@@ -7,7 +7,11 @@
 //
 // Plan 09: joinTrip (uuid token) replaced by joinTripByCode (text invite code).
 // The service-role upsert pattern (anon-join-architecture) is unchanged — only step 2 changes.
+//
+// Plan 02-04: removeMember + leaveTrip added. These run under NORMAL RLS — no service-role.
+// The trip_members DELETE policy authorizes admin-remove + self-leave; no bypass needed.
 
+import { revalidatePath } from 'next/cache'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { es } from '@/i18n/es'
@@ -102,4 +106,73 @@ export async function joinTripByCode(
   }
 
   return { tripId: resolvedTripId, error: null }
+}
+
+/**
+ * leaveTrip — the authenticated user leaves a trip they are a member of (TRIP-07).
+ *
+ * Runs under NORMAL RLS (plain SSR client — no service-role bypass).
+ * The trip_members DELETE policy authorizes self-leave: `user_id = (SELECT auth.uid())`.
+ * Actor identity comes from server-side getUser(); tripId is the row scope key.
+ *
+ * On success: revalidates the gente page so the RSC tree refreshes.
+ * Caller (MemberRow) also runs router.push('/') to bounce the leaver (D-13).
+ */
+export async function leaveTrip(tripId: string): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: es.errors.sessionExpired }
+  }
+
+  const { error } = await supabase
+    .from('trip_members')
+    .delete()
+    .eq('trip_id', tripId)
+    .eq('user_id', user.id) // self-leave; RLS enforces this anyway
+
+  if (error) {
+    return { error: es.errors.genericNetwork }
+  }
+
+  revalidatePath('/t/[tripId]/gente', 'page')
+  return { error: null }
+}
+
+/**
+ * removeMember — the trip creator removes another member (TRIP-06).
+ *
+ * Runs under NORMAL RLS (plain SSR client — no service-role bypass).
+ * The trip_members DELETE policy authorizes admin-remove:
+ *   `trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())`.
+ * Actor identity comes from server-side getUser(); targetUserId is only a row key —
+ * it never grants the caller the target's authority (T-02-12).
+ *
+ * On success: revalidates the gente page so the RSC tree refreshes.
+ * Caller (MemberRow) also runs router.refresh() (D-11).
+ */
+export async function removeMember(
+  tripId: string,
+  targetUserId: string,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: es.errors.sessionExpired }
+  }
+
+  const { error } = await supabase
+    .from('trip_members')
+    .delete()
+    .eq('trip_id', tripId)
+    .eq('user_id', targetUserId) // admin-remove: RLS allows only creator to delete others
+
+  if (error) {
+    return { error: es.errors.genericNetwork }
+  }
+
+  revalidatePath('/t/[tripId]/gente', 'page')
+  return { error: null }
 }
