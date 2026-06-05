@@ -93,3 +93,47 @@ describe('isWellFormedInviteCode', () => {
     expect(isWellFormedInviteCode('   ')).toBe(false)
   })
 })
+
+import { generateInviteCode } from './invite-code'
+
+describe('generateInviteCode', () => {
+  it('always produces a CODE_RE-valid code (500 iterations)', () => {
+    for (let i = 0; i < 500; i++) {
+      const code = generateInviteCode('Cancún 2026')
+      expect(CODE_RE.test(code)).toBe(true)
+    }
+  })
+
+  it('suffix never contains ambiguous characters O, I, L, 0, 1', () => {
+    const ambiguous = new Set(['O', 'I', 'L', '0', '1'])
+    for (let i = 0; i < 500; i++) {
+      const code = generateInviteCode('Cancún 2026')
+      const suffix = code.split('-')[1]
+      for (const char of suffix) {
+        expect(ambiguous.has(char)).toBe(false)
+      }
+    }
+  })
+
+  it('produces a CODE_RE-valid code for a 1-character name (prefix padded)', () => {
+    expect(CODE_RE.test(generateInviteCode('7'))).toBe(true)
+    expect(CODE_RE.test(generateInviteCode('🌴'))).toBe(true)
+    expect(CODE_RE.test(generateInviteCode(' '))).toBe(true)
+  })
+
+  it('prefix strips non-alpha and uppercases (café 2026 → prefix starts with CAFE)', () => {
+    // Run multiple times; every prefix must be CAFE (first 4 alpha chars of "café 2026")
+    for (let i = 0; i < 20; i++) {
+      const code = generateInviteCode('café 2026')
+      const prefix = code.split('-')[0]
+      expect(prefix).toBe('CAFE')
+    }
+  })
+
+  it('output is uppercase — normalizeInviteCode is a no-op', () => {
+    for (let i = 0; i < 20; i++) {
+      const code = generateInviteCode('Cancún 2026')
+      expect(normalizeInviteCode(code)).toBe(code)
+    }
+  })
+})
