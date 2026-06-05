@@ -78,7 +78,7 @@ Plans:
 **Plans**: 5 plans across 4 waves.
 Plans:
 **Wave 0** *(shared foundation)*
-- [ ] 02-01-PLAN.md — invite_code generator + es-MX date helper + es.ts trip/members/invite namespaces + shadcn calendar/textarea
+- [x] 02-01-PLAN.md — invite_code generator + es-MX date helper + es.ts trip/members/invite namespaces + shadcn calendar/textarea
 
 **Wave 1**
 - [ ] 02-02-PLAN.md — Create-trip slice: two-choice welcome + /trips/new route + createTrip service-role action + invite_code + creator-as-admin (lands creator inside the trip)
@@ -172,7 +172,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
-| 2. Trip + Member Management | 0/5 | Planned (5 plans, 4 waves) | - |
+| 2. Trip + Member Management | 1/5 | In Progress|  |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |

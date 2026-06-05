@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 06
-current_plan: Not started
+current_phase: 02
+current_plan: 1
 status: executing
-last_updated: "2026-06-05T19:17:34.355Z"
+last_updated: "2026-06-05T19:26:01.929Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 9
+  completed_plans: 10
   percent: 17
 ---
 
@@ -27,18 +27,18 @@ progress:
 
 **Stack:** Next.js 16 + TypeScript + Tailwind v4 + shadcn/ui + Supabase (Auth + PostgreSQL + Storage + Realtime) + Serwist + Dexie.js + Vercel
 
-**Current focus:** Phase 02 — Trip + Member Management (next to plan). Phase 06 (cuentas-email) remains deferred until a verified email domain exists.
+**Current focus:** Phase 02 — Trip + Member Management
 
 ---
 
 ## Current Position
 
-Phase: 01 (foundation-auth) — EXECUTING
-Plan: 1 of 9
-**Current phase:** 06
-**Current plan:** Not started
+Phase: 02 (Trip + Member Management) — EXECUTING
+Plan: 2 of 5
+**Current phase:** 02
+**Current plan:** 1
 **Status:** Ready to execute
-**Progress:** [██████████] 100% (All 9 Phase 1 plans complete — code verified; human UAT pending)
+**Progress:** [███████░░░] 71%
 
 ```
 [ ] Phase 1: Foundation + Auth  ← human_needed (see 01-VERIFICATION.md)
@@ -130,6 +130,8 @@ Full 8-step test script: `.planning/phases/01-foundation-auth/01-09-SUMMARY.md` 
 | **uuid /join/[token] route retired; /join/[code] replaces it** (2026-06-03, Plan 01-09) | joinTripByCode(code) replaces joinTrip(token); only resolution RPC changes; service-role upsert (anon-join-architecture) verbatim. CODE_RE /^[A-Za-z0-9]{2,8}-[A-Za-z0-9]{3,6}$/ for hybrid format validation. |
 | **Magic-link removed from v1 critical path** (2026-06-03, Plan 01-09) | sendMagicLink, MagicLinkForm, /auth/callback, /auth/check-email deleted. signOut retained. Email/magic-link deferred to Phase 6. |
 | **D-12 email-upgrade banner deferred; D-11 SinCuentaPill made static** (2026-06-03, Plan 01-09) | AnonymousBanner render removed from trip layout; AnonymousUpgradeSheet wiring removed from TopHeader; SinCuentaPill changed from `<button onClick=openUpgradeSheet>` to `<span>` static indicator. Both Phase 6 files retained on disk. |
+| **generateInviteCode uses SUFFIX_ALPHABET (D-06, 2026-06-05, Plan 02-01)** | Excludes O/I/L/0/1 for visual unambiguity. Math.random() acceptable — display code, not secret (A1). Prefix = first ≤4 alpha chars of name, padded to ≥2. Caller retries on Postgres 23505. |
+| **parseLocalDate/toLocalDateString (D-18, 2026-06-05, Plan 02-01)** | Local-midnight Date construction guards es-MX UTC-6 off-by-one. NEVER new Date(str) or .toISOString() for date columns. Single source of truth in src/lib/utils/date-format.ts. |
 
 ### Roadmap Evolution
 
