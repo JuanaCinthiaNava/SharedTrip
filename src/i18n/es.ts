@@ -3,6 +3,7 @@
 // Extended by Plan 04 with tabs, profile, tripSwitcher namespaces.
 // Plan 05 added the anon namespace.
 // Plan 09 adds the entry namespace (typed invite-code entry, replaces magic-link).
+// Phase 02 Plan 01 adds trip, members, invite namespaces (D-06 / TRIP-02 / UI-05).
 
 export const es = {
   // Invite-code entry screen (Plan 09 — replaces magic-link welcome screen)
@@ -76,6 +77,46 @@ export const es = {
     invalidJoinToken: 'Este código de invitación no es válido. Pide el código correcto a quien te invitó.',
     sessionExpired: 'Tu sesión expiró. Ingresa de nuevo.',
     genericNetwork: 'Error de conexión. Verifica tu red e intenta de nuevo.',
+  },
+  // Trip create/edit/delete — D-06, TRIP-02 (Phase 02 Plan 01)
+  trip: {
+    createCta: 'Crear viaje',
+    joinCta: 'Ya me invitaron',
+    nameLabel: 'Nombre del viaje',
+    namePlaceholder: 'Cancún 2026',
+    datesLabel: 'Fechas (opcional)',
+    noDates: 'Sin fechas todavía',
+    descriptionLabel: 'Descripción (opcional)',
+    saveCta: 'Guardar',
+    editCta: 'Editar viaje',
+    deleteCta: 'Eliminar viaje',
+    deleteDialogHeading: '¿Eliminar este viaje?',
+    deleteDialogBody: 'Esto borra el viaje y todo su contenido para todos. No se puede deshacer.',
+    deleteConfirmLabel: (name: string) => `Escribe "${name}" para confirmar`,
+    invalidName: 'El nombre debe tener entre 1 y 80 caracteres.',
+    invalidDateRange: 'La fecha de fin debe ser igual o posterior a la de inicio.',
+  },
+  // Member list + remove/leave actions (Phase 02 Plan 01)
+  members: {
+    heading: 'Miembros del viaje',
+    badgeCreator: 'Creador',
+    badgeYou: 'Tú',
+    removeCta: 'Quitar',
+    removeDialogHeading: (name: string) => `¿Quitar a ${name} del viaje?`,
+    removeDialogConfirm: 'Sí, quitar',
+    leaveCta: 'Salir del viaje',
+    leaveDialogHeading: (trip: string) => `¿Salir de ${trip}?`,
+    leaveDialogConfirm: 'Sí, salir',
+    cancel: 'Cancelar',
+  },
+  // Invite card — code display + share action (D-07/D-08/D-09, Phase 02 Plan 01)
+  invite: {
+    cardHeading: 'Invita a tu grupo',
+    cardBody: 'Comparte este código o el enlace para que se unan.',
+    copyCta: 'Copiar invitación',
+    copiedToast: 'Copiado',
+    shareMessage: (name: string, code: string, origin: string) =>
+      `Únete a mi viaje "${name}" en SharedTrip 🌴  ${origin}/join/${code}  (o escribe el código ${code})`,
   },
 } as const
 

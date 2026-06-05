@@ -54,3 +54,70 @@ describe('es.errors namespace (existing — not deleted by Plan 09)', () => {
     expect(es.errors.genericNetwork.length).toBeGreaterThan(0)
   })
 })
+
+describe('es.trip namespace (Phase 02 Plan 01 — trip create/edit/delete strings)', () => {
+  it('has all required string keys', () => {
+    const stringKeys = [
+      'createCta', 'joinCta', 'nameLabel', 'namePlaceholder', 'datesLabel',
+      'noDates', 'descriptionLabel', 'saveCta', 'editCta', 'deleteCta',
+      'deleteDialogHeading', 'deleteDialogBody', 'invalidName', 'invalidDateRange',
+    ] as const
+    for (const key of stringKeys) {
+      expect(typeof es.trip[key]).toBe('string')
+      expect((es.trip[key] as string).length).toBeGreaterThan(0)
+    }
+  })
+
+  it('deleteConfirmLabel is a function that accepts a name', () => {
+    expect(typeof es.trip.deleteConfirmLabel).toBe('function')
+    const result = es.trip.deleteConfirmLabel('Mi viaje')
+    expect(typeof result).toBe('string')
+    expect(result).toContain('Mi viaje')
+  })
+})
+
+describe('es.members namespace (Phase 02 Plan 01 — member list + actions)', () => {
+  it('has all required string keys', () => {
+    const stringKeys = [
+      'heading', 'badgeCreator', 'badgeYou', 'removeCta',
+      'removeDialogConfirm', 'leaveCta', 'leaveDialogConfirm', 'cancel',
+    ] as const
+    for (const key of stringKeys) {
+      expect(typeof es.members[key]).toBe('string')
+      expect((es.members[key] as string).length).toBeGreaterThan(0)
+    }
+  })
+
+  it('removeDialogHeading is a function that accepts a name', () => {
+    expect(typeof es.members.removeDialogHeading).toBe('function')
+    const result = es.members.removeDialogHeading('Ana')
+    expect(typeof result).toBe('string')
+    expect(result).toContain('Ana')
+  })
+
+  it('leaveDialogHeading is a function that accepts a trip name', () => {
+    expect(typeof es.members.leaveDialogHeading).toBe('function')
+    const result = es.members.leaveDialogHeading('Cancún 2026')
+    expect(typeof result).toBe('string')
+    expect(result).toContain('Cancún 2026')
+  })
+})
+
+describe('es.invite namespace (Phase 02 Plan 01 — invite card strings)', () => {
+  it('has all required string keys', () => {
+    const stringKeys = ['cardHeading', 'cardBody', 'copyCta', 'copiedToast'] as const
+    for (const key of stringKeys) {
+      expect(typeof es.invite[key]).toBe('string')
+      expect((es.invite[key] as string).length).toBeGreaterThan(0)
+    }
+  })
+
+  it('shareMessage is a function accepting name, code, origin', () => {
+    expect(typeof es.invite.shareMessage).toBe('function')
+    const result = es.invite.shareMessage('Cancún 2026', 'CANC-7HXY', 'https://sharedtrip.app')
+    expect(typeof result).toBe('string')
+    expect(result).toContain('Cancún 2026')
+    expect(result).toContain('CANC-7HXY')
+    expect(result).toContain('https://sharedtrip.app')
+  })
+})
