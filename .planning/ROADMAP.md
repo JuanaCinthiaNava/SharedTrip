@@ -75,7 +75,21 @@ Plans:
   4. Creator edits trip name, dates, or description and changes are reflected instantly for all members
   5. Trip dates display in Spanish day-month format (`Intl.DateTimeFormat('es-MX')`) consistently across all views
 
-**Plans**: TBD
+**Plans**: 5 plans across 4 waves.
+Plans:
+**Wave 0** *(shared foundation)*
+- [ ] 02-01-PLAN.md — invite_code generator + es-MX date helper + es.ts trip/members/invite namespaces + shadcn calendar/textarea
+
+**Wave 1**
+- [ ] 02-02-PLAN.md — Create-trip slice: two-choice welcome + /trips/new route + createTrip service-role action + invite_code + creator-as-admin (lands creator inside the trip)
+
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 02-03-PLAN.md — Member-list + invite-share slice: Gente member list + role badges + invite card copy + wired trip switcher create button
+
+**Wave 3** *(blocked on Wave 2 / Wave 1)*
+- [ ] 02-04-PLAN.md — Member management slice: removeMember + leaveTrip + inline AlertDialog confirms
+- [ ] 02-05-PLAN.md — Trip edit + delete slice: updateTrip/deleteTrip + EditTripSheet (CreateTripForm reuse) + type-name-to-delete dialog
+
 **UI hint**: yes
 
 ---
@@ -158,7 +172,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
-| 2. Trip + Member Management | 0/? | Not started | - |
+| 2. Trip + Member Management | 0/5 | Planned (5 plans, 4 waves) | - |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |
