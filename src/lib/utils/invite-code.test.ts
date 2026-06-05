@@ -121,12 +121,22 @@ describe('generateInviteCode', () => {
     expect(CODE_RE.test(generateInviteCode(' '))).toBe(true)
   })
 
-  it('prefix strips non-alpha and uppercases (café 2026 → prefix starts with CAFE)', () => {
-    // Run multiple times; every prefix must be CAFE (first 4 alpha chars of "café 2026")
+  it('prefix strips non-alpha and uppercases (CANCUN 2026 → prefix CANC)', () => {
+    // 'CANCUN 2026' uppercased → strip non-A-Z → 'CANCUN' → slice(0,4) = 'CANC'
     for (let i = 0; i < 20; i++) {
-      const code = generateInviteCode('café 2026')
+      const code = generateInviteCode('CANCUN 2026')
       const prefix = code.split('-')[0]
-      expect(prefix).toBe('CAFE')
+      expect(prefix).toBe('CANC')
+    }
+  })
+
+  it('prefix strips accented chars — café yields CAF (é→É is outside A-Z range)', () => {
+    // 'café' uppercased is 'CAFÉ'; É is U+00C9, outside /[A-Z]/, so stripped → 'CAF'
+    for (let i = 0; i < 20; i++) {
+      const code = generateInviteCode('café')
+      const prefix = code.split('-')[0]
+      expect(prefix).toBe('CAF')
+      expect(CODE_RE.test(code)).toBe(true)
     }
   })
 
