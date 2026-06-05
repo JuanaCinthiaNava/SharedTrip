@@ -10,6 +10,7 @@ import { InviteCard } from '@/components/members/InviteCard'
 import { MemberList } from '@/components/members/MemberList'
 import { EditTripSheet } from '@/components/trip/EditTripSheet'
 import { DeleteTripDialog } from '@/components/trip/DeleteTripDialog'
+import { formatTripRange } from '@/lib/utils/date-format'
 import { es } from '@/i18n/es'
 
 interface GentePageProps {
@@ -60,8 +61,17 @@ export default async function GentePage({ params }: GentePageProps) {
 
   const isCreator = currentUserId === creatorId
 
+  // Trip dates rendered in es-MX format (UI-05 / SC5). Null when no dates set (D-03) → row hidden.
+  const tripDates = formatTripRange(trip.start_date ?? null, trip.end_date ?? null)
+
   return (
     <div className="flex flex-col gap-8 px-4 py-4">
+      {/* Trip header — name + es-MX date range (UI-05). The trip-info surface for Phase 2. */}
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold leading-[1.2] text-fg">{trip.name}</h1>
+        {tripDates && <p className="text-sm text-fg-muted">{tripDates}</p>}
+      </header>
+
       {/* Creator-only edit affordance — atop Gente per UI-SPEC §2 / RESEARCH Open Q3 */}
       {isCreator && (
         <EditTripSheet
