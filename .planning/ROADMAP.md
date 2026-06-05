@@ -72,7 +72,7 @@ Plans:
   1. User creates a trip with name, start/end dates, and optional description; trip appears in their trip list immediately with a generated invite code
   2. Creator shares the trip's invite code; any person who types it joins the trip (anonymous join from Phase 1)
   3. All members can see the member list with names and avatars/initials; creator can remove members and members can leave
-  4. Creator edits trip name, dates, or description and changes are reflected instantly for all members
+  4. Creator edits trip name, dates, or description; changes reflect immediately for the editor and for all other members on their next view/navigation (via revalidatePath + router.refresh). Live push (Supabase Realtime) deferred to Phase 4 — confirmed 2026-06-05 that next-view freshness satisfies v1.
   5. Trip dates display in Spanish day-month format (`Intl.DateTimeFormat('es-MX')`) consistently across all views
 
 **Plans**: 5 plans across 4 waves.
