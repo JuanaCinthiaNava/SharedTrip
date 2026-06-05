@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { InviteCard } from '@/components/members/InviteCard'
 import { MemberList } from '@/components/members/MemberList'
 import { EditTripSheet } from '@/components/trip/EditTripSheet'
+import { DeleteTripDialog } from '@/components/trip/DeleteTripDialog'
 import { es } from '@/i18n/es'
 
 interface GentePageProps {
@@ -89,6 +90,15 @@ export default async function GentePage({ params }: GentePageProps) {
             tripName={trip.name}
           />
         </section>
+      )}
+
+      {/* D-15/D-16/D-17: Creator-only delete affordance — lowest, de-emphasized, destructive.
+          This is the creator's sole exit from the trip (D-15: no "Salir" for the creator).
+          Hard delete only — no archive (D-16). Type-exact-name to confirm (D-17). */}
+      {isCreator && (
+        <div className="pt-4 border-t border-border/30">
+          <DeleteTripDialog tripId={tripId} name={trip.name} />
+        </div>
       )}
     </div>
   )
