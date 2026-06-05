@@ -163,6 +163,18 @@ export async function removeMember(
     return { error: es.errors.sessionExpired }
   }
 
+  // Guard: never remove the trip creator (WR-04). The trip_members DELETE policy authorizes
+  // the creator to delete rows, which would otherwise permit removeMember(tripId, creatorId)
+  // and orphan the trip — rows remain but there is no admin and the delete affordance is gone.
+  const { data: trip } = await supabase
+    .from('trips')
+    .select('created_by')
+    .eq('id', tripId)
+    .single()
+  if (trip && trip.created_by === targetUserId) {
+    return { error: es.errors.genericNetwork }
+  }
+
   const { error } = await supabase
     .from('trip_members')
     .delete()

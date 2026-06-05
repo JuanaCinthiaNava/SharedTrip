@@ -28,6 +28,41 @@ interface CreateTripInput {
   description: string | null
 }
 
+// Date-only shape — date helpers and the DB store 'YYYY-MM-DD'; reject anything else
+// so a malformed string can never be persisted and later crash parseLocalDate/formatTripRange.
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * normalizeTripInput — the SERVER-SIDE validation boundary for create + update (CR-01).
+ * `'use server'` actions are directly-callable endpoints; RLS authorizes WHO writes, not WHAT.
+ * Client Zod is a UX nicety, not a boundary. Enforces: name 1–80 (trimmed), dates well-formed
+ * 'YYYY-MM-DD' with end >= start, description trimmed + capped at 500 (WR-02).
+ */
+function normalizeTripInput(input: {
+  name: unknown
+  startDate: unknown
+  endDate: unknown
+  description: unknown
+}): { value: CreateTripInput | null; error: string | null } {
+  const name = typeof input.name === 'string' ? input.name.trim() : ''
+  if (!name || name.length > 80) return { value: null, error: es.trip.invalidName }
+
+  const startDate =
+    typeof input.startDate === 'string' && DATE_RE.test(input.startDate) ? input.startDate : null
+  const endDate =
+    typeof input.endDate === 'string' && DATE_RE.test(input.endDate) ? input.endDate : null
+  if (startDate && endDate && endDate < startDate) {
+    return { value: null, error: es.trip.invalidDateRange }
+  }
+
+  const description =
+    typeof input.description === 'string' && input.description.trim()
+      ? input.description.trim().slice(0, 500)
+      : null
+
+  return { value: { name, startDate, endDate, description }, error: null }
+}
+
 /**
  * createTrip — create a new trip with a generated invite_code and insert the creator
  * as a trip_members admin row. Uses the service-role bounded-mutation pattern.
@@ -40,6 +75,10 @@ interface CreateTripInput {
 export async function createTrip(
   input: CreateTripInput
 ): Promise<{ tripId: string | null; error: string | null }> {
+  // Step 0: Server-side validation — never trust client Zod (CR-01/WR-02)
+  const { value: clean, error: validationError } = normalizeTripInput(input)
+  if (!clean) return { tripId: null, error: validationError }
+
   const supabase = await createClient()
 
   // Step 1: Ensure we have a user session — identity from server session only
@@ -76,14 +115,14 @@ export async function createTrip(
   // On any OTHER error return genericNetwork immediately (do not mask real failures).
   let tripId: string | null = null
   for (let attempt = 0; attempt < 5; attempt++) {
-    const invite_code = generateInviteCode(input.name)
+    const invite_code = generateInviteCode(clean.name)
     const { data, error } = await admin
       .from('trips')
       .insert({
-        name: input.name,
-        description: input.description,
-        start_date: input.startDate,
-        end_date: input.endDate,
+        name: clean.name,
+        description: clean.description,
+        start_date: clean.startDate,
+        end_date: clean.endDate,
         created_by: userId,
         invite_code,
       })
@@ -138,13 +177,17 @@ export async function updateTrip(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: es.errors.sessionExpired }
 
+  // Server-side validation — RLS authorizes WHO can update, not WHAT is written (CR-01)
+  const { value: clean, error: validationError } = normalizeTripInput(input)
+  if (!clean) return { error: validationError }
+
   const { error } = await supabase
     .from('trips')
     .update({
-      name: input.name,
-      description: input.description,
-      start_date: input.startDate,
-      end_date: input.endDate,
+      name: clean.name,
+      description: clean.description,
+      start_date: clean.startDate,
+      end_date: clean.endDate,
     })
     .eq('id', tripId)
 
