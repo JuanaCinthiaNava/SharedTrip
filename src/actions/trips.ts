@@ -123,20 +123,16 @@ export async function createTrip(
   return { tripId, error: null }
 }
 
-interface UpdateTripInput {
-  tripId: string
-  name: string
-  startDate: string | null
-  endDate: string | null
-  description: string | null
-}
-
 /**
  * updateTrip — update trip fields under normal RLS (creator-only UPDATE policy).
  * No service-role needed — the creator's session is present for edit operations.
+ *
+ * Security: tripId is only a row selector — the creator-only UPDATE RLS policy
+ * enforces that auth.uid() = created_by. Non-creators receive no rows affected.
  */
 export async function updateTrip(
-  input: UpdateTripInput
+  tripId: string,
+  input: { name: string; startDate: string | null; endDate: string | null; description: string | null }
 ): Promise<{ error: string | null }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -150,14 +146,15 @@ export async function updateTrip(
       start_date: input.startDate,
       end_date: input.endDate,
     })
-    .eq('id', input.tripId)
+    .eq('id', tripId)
 
   if (error) {
     console.error('[updateTrip] update failed:', error.message)
     return { error: es.errors.genericNetwork }
   }
 
-  revalidatePath(`/t/${input.tripId}`)
+  revalidatePath(`/t/${tripId}`, 'layout')
+  revalidatePath('/', 'layout')
   return { error: null }
 }
 
