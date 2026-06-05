@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation + Auth** — Deployed shell, typed-invite-code anonymous join verified on a real iPhone, RLS locked down, keep-alive active, i18n dictionary in place. **Re-scoped 2026-06-01** (magic-link → typed invite code; magic-link/email deferred to Phase 6) and **re-scope shipped + verified 2026-06-02** (plans 01-08/01-09; 11/11 device UAT passed — see `01-HUMAN-UAT.md`). (completed 2026-06-02)
-- [ ] **Phase 2: Trip + Member Management** — Create trip, generate invite code, join as member, view/manage member list, edit/archive trip
+- [x] **Phase 2: Trip + Member Management** — Create trip, generate invite code, join as member, view/manage member list, edit/archive trip (completed 2026-06-05)
 - [ ] **Phase 3: Document Vault + PWA Offline** — Upload, view, offline cache, QR fullscreen, install prompt — the core value ships here
 - [ ] **Phase 4: Itinerary + Realtime** — Collaborative chronological timeline with live updates, doc-to-event linking
 - [ ] **Phase 5: Polish + Real-device QA** — iOS Safari hardening, performance, UI completeness before departure
@@ -87,7 +87,7 @@ Plans:
 - [x] 02-03-PLAN.md — Member-list + invite-share slice: Gente member list + role badges + invite card copy + wired trip switcher create button
 
 **Wave 3** *(blocked on Wave 2 / Wave 1)*
-- [ ] 02-04-PLAN.md — Member management slice: removeMember + leaveTrip + inline AlertDialog confirms
+- [x] 02-04-PLAN.md — Member management slice: removeMember + leaveTrip + inline AlertDialog confirms
 - [x] 02-05-PLAN.md — Trip edit + delete slice: updateTrip/deleteTrip + EditTripSheet (CreateTripForm reuse) + type-name-to-delete dialog
 
 **UI hint**: yes
@@ -172,7 +172,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 9/9 | All plans code-complete; real-device UAT pending (run vercel --prod --force + 8-step iPhone test) | 2026-06-03 |
-| 2. Trip + Member Management | 4/5 | In Progress|  |
+| 2. Trip + Member Management | 5/5 | Complete   | 2026-06-05 |
 | 3. Document Vault + PWA Offline | 0/? | Not started | - |
 | 4. Itinerary + Realtime | 0/? | Not started | - |
 | 5. Polish + Real-device QA | 0/? | Not started | - |
