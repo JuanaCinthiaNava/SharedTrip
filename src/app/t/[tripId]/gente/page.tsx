@@ -1,16 +1,80 @@
-// Gente tab — Phase 1 empty state.
-// Phase 2 will replace this with the trip member list.
+// Gente tab — Phase 2 member list + invite card (RSC).
+// Fetches trip (name, invite_code, created_by) + members (trip_members JOIN profiles).
+// RLS ensures only authenticated trip members can see this page.
+// InviteCard is pinned at top (D-07); doubles as empty state for sole member.
+// MemberList rendered only when ≥1 co-member exists.
 
-import { Users } from 'lucide-react'
-import { EmptyState } from '@/components/common/EmptyState'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { InviteCard } from '@/components/members/InviteCard'
+import { MemberList } from '@/components/members/MemberList'
 import { es } from '@/i18n/es'
 
-export default function GentePage() {
+interface GentePageProps {
+  params: Promise<{ tripId: string }>
+}
+
+export default async function GentePage({ params }: GentePageProps) {
+  const { tripId } = await params
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Auth guard — layout already guards, but be explicit here too
+  if (!user) {
+    redirect('/')
+  }
+
+  // Fetch trip name, invite_code, and creator — RLS member-gated SELECT
+  const { data: trip } = await supabase
+    .from('trips')
+    .select('name, invite_code, created_by')
+    .eq('id', tripId)
+    .single()
+
+  if (!trip) {
+    redirect('/')
+  }
+
+  // Fetch members with profile data — member-gated RLS (T-02-07 mitigated)
+  const { data: rawMembers } = await supabase
+    .from('trip_members')
+    .select('user_id, role, profiles(display_name, avatar_seed)')
+    .eq('trip_id', tripId)
+
+  // Flatten the nested profiles relation (mirrors layout.tsx:48-51 pattern)
+  const members = (rawMembers ?? []).map((tm) => ({
+    user_id: tm.user_id,
+    role: tm.role,
+    profiles: Array.isArray(tm.profiles) ? tm.profiles[0] ?? null : (tm.profiles ?? null),
+  }))
+
+  const currentUserId = user.id
+  const creatorId = trip.created_by
+
+  // Show the member list section only when there are co-members (D-07: invite card IS the empty state)
+  const hasCoMembers = members.some((m) => m.user_id !== currentUserId)
+
   return (
-    <EmptyState
-      icon={Users}
-      heading={es.tabs.genteEmptyHeading}
-      body={es.tabs.genteEmptyBody}
-    />
+    <div className="flex flex-col gap-8 px-4 py-4">
+      {/* D-07: Invite card pinned at top; doubles as empty state when sole member */}
+      <InviteCard name={trip.name} code={trip.invite_code} />
+
+      {/* Member list — only shown when there is ≥1 co-member */}
+      {hasCoMembers && (
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xl font-bold leading-[1.3] text-fg">
+            {es.members.heading}
+          </h2>
+          <MemberList
+            members={members}
+            currentUserId={currentUserId}
+            creatorId={creatorId}
+            tripId={tripId}
+            tripName={trip.name}
+          />
+        </section>
+      )}
+    </div>
   )
 }
