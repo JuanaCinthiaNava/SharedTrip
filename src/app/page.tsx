@@ -16,9 +16,25 @@ import { InviteCodeForm } from '@/components/auth/InviteCodeForm'
 import { ErrorToast } from '@/components/common/ErrorToast'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { isWellFormedInviteCode, normalizeInviteCode } from '@/lib/utils/invite-code'
 import { es } from '@/i18n/es'
 
-export default async function WelcomePage() {
+export default async function WelcomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>
+}) {
+  // Progressive enhancement for code entry (02 UAT): InviteCodeForm navigates via client JS to
+  // /join/{code}. If that JS never runs — hydration hiccup, a stale PWA service worker serving
+  // mismatched chunks, or JS disabled — the form falls back to a NATIVE GET submit, which lands
+  // on /?code=XXX (the input is name="code"). Without this guard that param is ignored and the
+  // submit appears to "do nothing". Honor it here server-side so typed-code entry works with or
+  // without JS: a well-formed code redirects straight into the join handler.
+  const { code } = await searchParams
+  if (code && isWellFormedInviteCode(code)) {
+    redirect(`/join/${encodeURIComponent(normalizeInviteCode(code))}`)
+  }
+
   // Session guard: if the visitor already holds a session AND is a member of at least one trip,
   // send them back into that trip instead of showing the code form. This is what makes the
   // anonymous session feel persistent across browser restarts (AUTH-03): reopening Safari lands
