@@ -72,4 +72,19 @@ blocked: 0
     - "Add a FK so PostgREST can resolve the embed: new migration `ALTER TABLE public.trip_members ADD CONSTRAINT trip_members_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;` (profiles.id is 1:1 with auth.users.id; every member already has a profile row). Then `profiles(...)` embed resolves. — OR — rewrite gente/page.tsx to fetch trip_members and profiles in two queries and join in JS (no migration)."
     - "Stop swallowing the query error in gente/page.tsx — check `error` and log/surface it so a broken member query can never again silently render an empty list."
     - "After fix, redeploy prod (git push + vercel --prod --force) and re-verify Test 5 on COSTA AMALFI (member f5a5848e should appear)."
+  resolution: "RESOLVED 2026-06-12. Migration 20260530000007 adds the trip_members.user_id -> profiles.id FK; applied to prod via Supabase SQL editor. gente/page.tsx now checks the query error instead of discarding it (commit 0653d23). User confirmed the member list renders ('FUNCIONO')."
+  debug_session: ""
+
+- truth: "Typing an invite code on the welcome screen and tapping 'Entrar al viaje' takes the user into the trip (same outcome as opening the /join link)."
+  status: failed
+  reason: "User reported: the /join link works, but typing the code on / and submitting 'no hace nada' — the URL becomes /?code=XXX and nothing happens. Diagnosis: InviteCodeForm (<form noValidate> with input name='code', no action) navigates via client JS to /join/{code}. When that JS doesn't run (hydration hiccup / stale PWA service worker serving mismatched chunks / JS disabled), the browser does a NATIVE GET submit to /?code=XXX. The welcome page ignored that param, so the submit dead-ended. Prod confirmed: /?code=TEST-AB12 returned HTTP 200 (welcome page), no redirect."
+  severity: major
+  test: 5
+  root_cause: "Typed-code entry depended entirely on client JS; the native form-submit fallback (GET /?code=XXX) was not handled server-side. Not a join-flow bug — /join itself works (verified)."
+  artifacts:
+    - path: "src/app/page.tsx"
+      issue: "WelcomePage did not read the ?code= search param, so a native form submission (when client JS didn't run) dead-ended on the welcome screen."
+  missing:
+    - "Progressive enhancement: read ?code= in WelcomePage and redirect a well-formed code to /join/{code} server-side, so typed-code entry works with or without JS."
+  resolution: "RESOLVED 2026-06-12. WelcomePage now reads searchParams.code and redirects a well-formed code to /join/{normalized} (commit 0f8337e). Pushed + deployed to prod (dpl_51MjBE4...). Verified: /?code=TEST-AB12 -> 307 /join/TEST-AB12 (case-insensitive). Awaiting final on-device confirmation by user."
   debug_session: ""
