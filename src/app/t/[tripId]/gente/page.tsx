@@ -41,10 +41,18 @@ export default async function GentePage({ params }: GentePageProps) {
   }
 
   // Fetch members with profile data — member-gated RLS (T-02-07 mitigated)
-  const { data: rawMembers } = await supabase
+  // The `profiles(...)` embed resolves via the trip_members.user_id -> profiles.id FK
+  // (migration 20260530000007). NEVER discard `error` here: a failed query that falls back
+  // to [] silently renders an empty member list — exactly the PGRST200 embed-FK bug that hid
+  // every co-member in Phase 02 (UAT Test 5). Surface it instead.
+  const { data: rawMembers, error: membersError } = await supabase
     .from('trip_members')
     .select('user_id, role, profiles(display_name, avatar_seed)')
     .eq('trip_id', tripId)
+
+  if (membersError) {
+    console.error('[GentePage] trip_members query failed:', membersError.message)
+  }
 
   // Flatten the nested profiles relation (mirrors layout.tsx:48-51 pattern)
   const members = (rawMembers ?? []).map((tm) => ({
