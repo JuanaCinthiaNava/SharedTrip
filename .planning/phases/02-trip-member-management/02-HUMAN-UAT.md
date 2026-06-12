@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 02-trip-member-management
 source: [02-VERIFICATION.md]
 started: 2026-06-05T20:45:00Z
-updated: 2026-06-12T21:30:00Z
+updated: 2026-06-12T22:00:00Z
 ---
 
 ## Current Test
@@ -38,9 +38,8 @@ result: pass
 
 ### 5. Creator removes a member; member can leave; removed/left member is bounced
 expected: Creator taps "Quitar" on another member's row and confirms → row disappears. A non-creator taps "Salir del viaje" and confirms → returns to `/`. A removed/left member navigating to any `/t/[tripId]/*` route is redirected to `/` by the layout null-trip guard. The creator has no "Salir" (delete is their only exit).
-result: issue
-reported: "no veo ningun miembro aunque alguien ya abrió el link para ver el viaje"
-severity: major
+result: pass
+note: "Initially failed (empty member list + typed-code entry dead-end). Both root causes fixed and verified in prod 2026-06-12: (1) missing trip_members->profiles FK — migration 20260530000007; (2) typed-code native-submit fallback — ?code= now handled server-side on /. User confirmed 'it works'. See Gaps for full diagnosis."
 
 ### 6. Delete trip requires typing the exact name
 expected: Creator opens the delete dialog; the destructive "Eliminar viaje" button stays disabled until the exact trip name is typed; confirming deletes the trip (cascade) and returns to `/`.
@@ -49,8 +48,8 @@ result: pass
 ## Summary
 
 total: 6
-passed: 5
-issues: 1
+passed: 6
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
