@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-trip-member-management
 source: [02-VERIFICATION.md]
 started: 2026-06-05T20:45:00Z
-updated: 2026-06-12T12:45:00Z
+updated: 2026-06-12T21:30:00Z
 ---
 
 ## Current Test
@@ -62,7 +62,14 @@ blocked: 0
   reason: "User reported: no veo ningún miembro aunque alguien ya abrió el link para ver el viaje. After someone opened the invite link, the creator still sees no member rows. Either the join did not create a trip_members row, or the Gente member-list query (likely RLS) only returns the current user. Blocks the remove-member sub-test (no row to 'Quitar')."
   severity: major
   test: 5
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "CONFIRMED via prod inspection (2026-06-12). The join is NOT broken — trip 'COSTA AMALFI' (COST-8AC9) has 2 trip_members rows in prod (admin 0184346a + member f5a5848e), so joinTripByCode correctly created the membership. The bug is in the Gente member-list READ: gente/page.tsx runs `supabase.from('trip_members').select('user_id, role, profiles(display_name, avatar_seed)')` — a PostgREST embed that requires a FK relationship between trip_members and profiles. NO such FK exists: trip_members.user_id REFERENCES auth.users (initial_schema.sql:45) and profiles.id REFERENCES auth.users (line 18), but there is no direct trip_members→profiles FK. PostgREST returns error PGRST200 ('Could not find a relationship between trip_members and profiles in the schema cache'). The code discards the error (`const { data: rawMembers }` — error not checked), falls back to `rawMembers ?? []` → [] → hasCoMembers=false → MemberList never renders. This fails for EVERY trip, not just COSTA AMALFI, and a refresh can never fix it (not a cache issue). Secondary defect: the swallowed query error hid this for the whole phase. NOTE: the earlier 'NYC-JKSX no es válido' report is unrelated and working-as-designed (that code does not exist in prod)."
+  artifacts:
+    - path: "src/app/t/[tripId]/gente/page.tsx"
+      issue: "Lines 44-48: trip_members SELECT with embedded `profiles(display_name, avatar_seed)` fails with PGRST200 — no FK between trip_members and profiles for PostgREST to resolve. Error is discarded (data destructured without error), silently yielding an empty member list for all trips."
+    - path: "supabase/migrations/20260530000001_initial_schema.sql"
+      issue: "Lines 18 & 45: profiles.id and trip_members.user_id both FK to auth.users but there is no direct FK from trip_members.user_id to profiles.id, so PostgREST cannot embed profiles on trip_members."
+  missing:
+    - "Add a FK so PostgREST can resolve the embed: new migration `ALTER TABLE public.trip_members ADD CONSTRAINT trip_members_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;` (profiles.id is 1:1 with auth.users.id; every member already has a profile row). Then `profiles(...)` embed resolves. — OR — rewrite gente/page.tsx to fetch trip_members and profiles in two queries and join in JS (no migration)."
+    - "Stop swallowing the query error in gente/page.tsx — check `error` and log/surface it so a broken member query can never again silently render an empty list."
+    - "After fix, redeploy prod (git push + vercel --prod --force) and re-verify Test 5 on COSTA AMALFI (member f5a5848e should appear)."
   debug_session: ""
